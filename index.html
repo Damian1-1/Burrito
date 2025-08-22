@@ -4,43 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karawana Burrito</title>
-    <!-- Tailwind CSS CDN for easy styling -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for the game, if needed, overriding Tailwind */
+        /* Custom styles, overriding Tailwind if necessary */
         body {
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: #f7ede2; /* Lighter, sandy background for the whole page */
+            background-color: #f7ede2; /* Lighter, sandy background */
         }
-        /* Specific styling for the game board grid items for better visuals */
         .grid-item {
-            width: 3rem; /* Fixed width for tiles */
-            height: 3rem; /* Fixed height for tiles */
+            width: 3rem;
+            height: 3rem;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 1px solid #d1d5db; /* gray-300 */
             border-radius: 0.25rem; /* rounded-sm */
             text-align: center;
-            font-size: 0.75rem; /* text-xs */
+            font-size: 0.75rem;
             background-color: #fcf6e6; /* Very light sandy for empty tiles */
+            transition: all 0.2s ease-in-out; /* Smooth transitions for hover effects */
         }
+        .grid-item.highlight-move {
+            background-color: #c0f7d5; /* Light green for possible moves */
+            border-color: #22c55e;
+            cursor: pointer;
+        }
+        .grid-item.highlight-move:hover {
+            transform: scale(1.1);
+        }
+        /* Player-specific colors for leader icons */
+        .player-1 { color: #f97316; } /* Orange */
+        .player-2 { color: #2563eb; } /* Blue */
+        .player-3 { color: #84cc16; } /* Lime Green */
+        .player-4 { color: #ef4444; } /* Red */
 
-        /* Responsive adjustments for larger screens if necessary, overriding fixed size */
+        /* Responsive adjustments for larger screens */
         @media (min-width: 768px) {
             .grid-item {
-                width: 4rem; /* Larger tiles on medium screens */
+                width: 4rem;
                 height: 4rem;
-                font-size: 0.875rem; /* text-sm */
+                font-size: 0.875rem;
             }
         }
         @media (min-width: 1024px) {
             .grid-item {
-                width: 5rem; /* Even larger tiles on large screens */
+                width: 5rem;
                 height: 5rem;
-                font-size: 1rem; /* text-base */
+                font-size: 1rem;
             }
         }
 
@@ -59,34 +74,33 @@
         }
         .modal-content {
             background-color: white;
-            padding: 2.5rem; /* Slightly more padding */
-            border-radius: 0.75rem; /* More rounded */
-            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
             text-align: center;
             max-width: 90%;
-            width: 550px; /* Slightly wider */
+            width: 550px;
         }
 
         /* Toast notifications */
         #toast-container {
             position: fixed;
-            bottom: 1.5rem; /* Slightly higher from bottom */
-            right: 1.5rem; /* Slightly further from right */
+            bottom: 1.5rem;
+            right: 1.5rem;
             z-index: 1001;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem; /* More space between toasts */
+            gap: 0.75rem;
         }
         .toast {
-            background-color: #2b2b2b; /* Darker, more prominent toast */
+            background-color: #2b2b2b;
             color: white;
-            padding: 0.85rem 1.45rem; /* Slightly larger padding */
-            border-radius: 0.5rem; /* More rounded */
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Clearer shadow */
+            padding: 0.85rem 1.45rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
             opacity: 0;
-            animation: fadeIn 0.3s forwards, fadeOut 3s forwards 2s; /* Fade in, stay 2s, fade out */
+            animation: fadeIn 0.3s forwards, fadeOut 3s forwards 2s;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -99,7 +113,6 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <!-- Game Over/Start Modal -->
     <div id="game-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <h2 id="modal-title" class="text-3xl font-bold mb-4 text-amber-800">Karawana Burrito</h2>
@@ -111,36 +124,27 @@
     </div>
 
     <div id="game-container" class="flex flex-col lg:flex-row gap-8 w-full max-w-6xl hidden">
-        <!-- Sidebar - Player Info and Game Log -->
         <div class="lg:w-1/3 flex flex-col gap-4">
-            <!-- Player Info -->
             <div class="bg-white rounded-lg shadow-xl p-4">
                 <h2 class="text-xl font-semibold mb-3 text-amber-800">Gracze</h2>
                 <div id="players-info">
-                    <!-- Player info will be rendered here by JavaScript -->
-                </div>
+                    </div>
             </div>
 
-            <!-- Game Log -->
             <div class="bg-white rounded-lg shadow-xl p-4 flex-grow overflow-y-auto max-h-60 lg:max-h-[300px]">
                 <h2 class="text-xl font-semibold mb-3 text-amber-800">Log Gry</h2>
                 <div id="game-log" class="text-sm space-y-1">
-                    <!-- Game log messages will be added here by JavaScript -->
-                </div>
+                    </div>
             </div>
         </div>
 
-        <!-- Main Game Area - Board and Controls -->
         <div class="lg:w-2/3 flex flex-col gap-6">
-            <!-- Game Board -->
             <div class="bg-white rounded-lg shadow-xl p-4">
                 <h2 class="text-xl font-semibold mb-3 text-amber-800">Plansza</h2>
                 <div id="game-board" class="grid gap-0.5" style="grid-template-columns: repeat(7, minmax(0, 1fr));">
-                    <!-- Game board tiles will be rendered here by JavaScript -->
-                </div>
+                    </div>
             </div>
 
-            <!-- Game Controls -->
             <div class="bg-white rounded-lg shadow-xl p-4 flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <button id="next-turn-button" class="px-6 py-3 bg-orange-600 text-white font-bold rounded-lg shadow-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105">
                     Wykonaj Ruch
@@ -154,17 +158,14 @@
                 </button>
             </div>
 
-            <!-- Legend -->
             <div class="bg-white rounded-lg shadow-xl p-4">
                 <h2 class="text-xl font-semibold mb-3 text-amber-800">Legenda</h2>
                 <div id="legend-info" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-sm">
-                    <!-- Legend items will be rendered here by JavaScript -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 
-    <!-- Toast Container -->
     <div id="toast-container"></div>
 
     <script>
@@ -184,329 +185,346 @@
         const legendInfoElement = document.getElementById('legend-info');
         const toastContainer = document.getElementById('toast-container');
 
-
         // --- GAME CONSTANTS ---
         const BOARD_SIZE = 7;
+        const HUMAN_PLAYER_COUNT = 1; // You can change this to 2, 3, or 4 for more human players
+        const AI_PLAYER_COUNT = 3;    // AI players will be added automatically up to 4 total players
+
+        // --- GAME STATE ---
+        let board;
+        let players = [];
+        let currentPlayerIndex;
+        let gameLog = [];
+        let possibleMoves = [];
+        let moveInProgress = false;
 
         // --- GAME CLASSES AND OBJECTS ---
-
-        // Tile class/object
         const Pole = (type, symbol, bonus = null) => ({ type, symbol, bonus });
-
-        // Donkey class/object
         const Osiolek = (type) => ({ type });
-
-        // Player class/object
         const Gracz = (name, leaderSymbol, caravanSymbol, startX, startY, isAI = false) => ({
             name,
             leaderSymbol,
             caravanSymbol,
-            caravan: [{ x: startX, y: startY, osiolek: Osiolek('zwykly') }], // List of caravan segments
+            caravan: [{ x: startX, y: startY, osiolek: Osiolek('zwykly') }],
             points: 0,
-            packages: [], // List of package names
-            losesTurn: 0, // Number of turns to lose
-            extraMoveNextTurn: 0, // Extra movement bonus for next turn
-            donkeyAbilities: [], // List of ability types (e.g., 'twardziel', 'zlodziej', 'prorok', 'wloczega')
-            equipment: [], // List of owned equipment (e.g., 'siodlo', 'sakwa', 'dzwonek')
+            packages: [],
+            losesTurn: 0,
+            extraMoveNextTurn: 0,
+            donkeyAbilities: [],
+            equipment: [],
             isAI,
-            shadowCooldown: 0, // Cooldown for 'cien' donkey ability
-            amuletActiveTurns: 0, // Turns Amulet is active for trap/bandit immunity
-            mapaBonusActive: false, // Permanent +1 movement from Mapa
-            bellCooldown: 0, // Cooldown for 'dzwonek' equipment
-            prophetRevealedTile: null, // Stores a revealed tile for the Prorok ability
+            shadowCooldown: 0,
+            amuletActiveTurns: 0,
+            mapaBonusActive: false,
+            bellCooldown: 0,
+            prophetRevealedTile: null,
+            targetPackage: null, // AI target
+            targetDonkey: null, // AI target
         });
 
         // --- GAME LOGIC FUNCTIONS ---
 
-        // Board initialization
         const initializeBoard = (size) => {
-            const board = Array.from({ length: size }, () => Array(size).fill(null).map(() => Pole('empty', '.')));
+            const newBoard = Array.from({ length: size }, () => Array(size).fill(null).map(() => Pole('empty', '.')));
 
             // Packages (mixed types including new ones)
-            board[1][1] = Pole('package', '📦', { points: 10, name: 'Wino' });
-            board[5][5] = Pole('package', '📦', { points: 15, name: 'Przyprawy' });
-            board[0][0] = Pole('package', '✨', { points: 5, name: 'Amulet' }); // New Amulet package
-            board[6][0] = Pole('package', '🗺️', { points: 5, name: 'Mapa' });    // New Mapa package
+            newBoard[1][1] = Pole('package', '📦', { points: 10, name: 'Wino' });
+            newBoard[5][5] = Pole('package', '📦', { points: 15, name: 'Przyprawy' });
+            newBoard[0][0] = Pole('package', '✨', { points: 5, name: 'Amulet' });
+            newBoard[6][0] = Pole('package', '🗺️', { points: 5, name: 'Mapa' });
+            newBoard[2][2] = Pole('package', '📦', { points: 8, name: 'Korale' });
 
             // Loose Donkeys
-            board[2][5] = Pole('donkey', '🐴');
-            board[3][4] = Pole('donkey', '🐴'); // Additional loose donkey
+            newBoard[2][5] = Pole('donkey', '🐴');
+            newBoard[3][4] = Pole('donkey', '🐴');
 
             // Food
-            board[2][3] = Pole('food', '🍎');
-            board[5][3] = Pole('food', '🍎');
+            newBoard[2][3] = Pole('food', '🍎');
+            newBoard[5][3] = Pole('food', '🍎');
+            newBoard[6][5] = Pole('food', '🍎');
 
             // Traps
-            board[3][3] = Pole('trap', '☠️', { turnsLost: 1 });
-            board[1][0] = Pole('trap', '☠️', { turnsLost: 1 });
+            newBoard[3][3] = Pole('trap', '☠️', { turnsLost: 1 });
+            newBoard[1][0] = Pole('trap', '☠️', { turnsLost: 1 });
 
             // Vineyards
-            board[0][2] = Pole('vineyard', '🍇');
-            board[6][4] = Pole('vineyard', '🍇');
+            newBoard[0][2] = Pole('vineyard', '🍇');
+            newBoard[6][4] = Pole('vineyard', '🍇');
 
             // Mountain Shortcuts (shortcut to package at (1,1))
-            board[3][0] = Pole('mountain_shortcut', '🏔️', { targetX: 1, targetY: 1 });
+            newBoard[3][0] = Pole('mountain_shortcut', '🏔️', { targetX: 1, targetY: 1 });
 
             // Cacti
-            board[4][1] = Pole('cactus', '🌵');
-            board[0][1] = Pole('cactus', '🌵'); // Additional cactus
+            newBoard[4][1] = Pole('cactus', '🌵');
+            newBoard[0][1] = Pole('cactus', '🌵');
+            newBoard[5][4] = Pole('cactus', '🌵');
 
             // River and Bridges
-            board[3][1] = Pole('river', '🌊');
-            board[4][2] = Pole('bridge', '🌉');
-            board[5][2] = Pole('river', '🌊');
+            newBoard[3][1] = Pole('river', '🌊');
+            newBoard[4][2] = Pole('bridge', '🌉');
+            newBoard[5][2] = Pole('river', '🌊');
+            newBoard[2][6] = Pole('river', '🌊');
 
             // Bazaar
-            board[0][6] = Pole('bazar', '💰');
+            newBoard[0][6] = Pole('bazar', '💰');
 
             // Fences
-            board[2][2] = Pole('fence', '🚧');
-            board[4][4] = Pole('fence', '🚧');
+            newBoard[4][4] = Pole('fence', '🚧');
+            newBoard[1][4] = Pole('fence', '🚧');
 
-            // New: Bandolero (Bandits)
-            board[1][3] = Pole('bandits', '🤠', { packagesLost: 1, donkeysLost: 1 });
-            board[5][1] = Pole('bandits', '🤠', { packagesLost: 1, donkeysLost: 1 });
+            // Bandits
+            newBoard[1][3] = Pole('bandits', '🤠');
+            newBoard[5][1] = Pole('bandits', '🤠');
 
-            // New: Well
-            board[4][6] = Pole('well', '💧'); // Can give bonus or penalty
-            board[1][6] = Pole('well', '💧');
+            // Well
+            newBoard[4][6] = Pole('well', '💧');
+            newBoard[1][6] = Pole('well', '💧');
 
-            // New: Oasis
-            board[6][3] = Pole('oasis', '🌴');
-            board[0][3] = Pole('oasis', '🌴');
+            // Oasis
+            newBoard[6][3] = Pole('oasis', '🌴');
+            newBoard[0][3] = Pole('oasis', '🌴');
 
+            // Equipment (Dzwonek i Sakwa)
+            newBoard[3][6] = Pole('equipment', '🔔', { equipmentType: 'dzwonek' });
+            newBoard[6][2] = Pole('equipment', '💼', { equipmentType: 'sakwa' });
 
             // Special Donkeys (unique)
-            board[1][5] = Pole('special_donkey', '⚪', { donkeyType: 'guide', name: 'Bialy Osiolek' }); // Guide Donkey
-            board[4][0] = Pole('special_donkey', '⚫', { donkeyType: 'shadow', name: 'Czarny Osiolek' }); // Shadow Donkey
-            board[6][1] = Pole('special_donkey', '🟫', { donkeyType: 'sturdy', name: 'Brazowy Osiolek' }); // Sturdy Donkey
-            board[0][4] = Pole('special_donkey', '⬜', { donkeyType: 'stealthy', name: 'Szary Osiolek' }); // Stealthy Donkey (not active in this version)
-            board[5][0] = Pole('special_donkey', '🌟', { donkeyType: 'prorok', name: 'Zloty Osiolek (Prorok)' }); // Prophet Donkey
-            board[6][6] = Pole('special_donkey', '🎒', { donkeyType: 'wloczega', name: 'Zielony Osiolek (Wloczega)' }); // Wanderer Donkey
+            newBoard[1][5] = Pole('special_donkey', '⚪', { donkeyType: 'guide', name: 'Bialy Osiolek' });
+            newBoard[4][0] = Pole('special_donkey', '⚫', { donkeyType: 'shadow', name: 'Czarny Osiolek' });
+            newBoard[6][1] = Pole('special_donkey', '🟫', { donkeyType: 'sturdy', name: 'Brazowy Osiolek' });
+            newBoard[0][4] = Pole('special_donkey', '🌟', { donkeyType: 'prorok', name: 'Zloty Osiolek (Prorok)' });
+            newBoard[5][0] = Pole('special_donkey', '🎒', { donkeyType: 'wloczega', name: 'Zielony Osiolek (Wloczega)' });
 
-            return board;
+            return newBoard;
         };
 
-        // Manhattan distance calculation (used in AI)
+        const legend = [
+            { symbol: '📦', name: 'Pakunek', desc: 'Zbierz, aby zdobyć punkty.' },
+            { symbol: '✨', name: 'Amulet', desc: 'Chroni przed pułapkami i bandytami na 3 tury.' },
+            { symbol: '🗺️', name: 'Mapa', desc: 'Daje stały, dodatkowy ruch (+1).' },
+            { symbol: '🔔', name: 'Dzwonek', desc: 'Sprzęt, pozwala ukraść pakunek innemu graczowi.' },
+            { symbol: '💼', name: 'Sakwa', desc: 'Sprzęt, daje stały, dodatkowy ruch (+1).' },
+            { symbol: '🐴', name: 'Luzny Osiołek', desc: 'Dołącza do karawany, zwiększając jej długość.' },
+            { symbol: '⚪', name: 'Biały Osiołek', desc: 'Przewodnik, teleportuje na losowe pole.' },
+            { symbol: '⚫', name: 'Czarny Osiołek', desc: 'Cień, pozwala na kopiowanie ruchów innego gracza.' },
+            { symbol: '🟫', name: 'Brązowy Osiołek', desc: 'Twardziel, uodparnia na pułapki i bandytów.' },
+            { symbol: '🌟', name: 'Złoty Osiołek', desc: 'Prorok, ujawnia pobliskie interesujące pola.' },
+            { symbol: '🎒', name: 'Zielony Osiołek', desc: 'Włóczęga, ignoruje spowalniające kaktusy.' },
+            { symbol: '🍎', name: 'Jedzenie', desc: 'Karawana rośnie o 1 losowego osiołka.' },
+            { symbol: '☠️', name: 'Pułapka', desc: 'Tracisz 1 turę (chyba że masz Amulet lub Twardziela).' },
+            { symbol: '🤠', name: 'Bandyci', desc: 'Tracisz 1 pakunek lub osiołka (chyba że masz Amulet lub Twardziela).' },
+            { symbol: '🍇', name: 'Winnica', desc: 'Zyskujesz +1 ruch w następnej turze.' },
+            { symbol: '🏔️', name: 'Skrót Górski', desc: 'Teleportuje do innej lokacji na planszy.' },
+            { symbol: '💰', name: 'Bazar', desc: 'Sprzedaj 1 pakunek za 5 punktów.' },
+            { symbol: '🌵', name: 'Kaktus', desc: 'Kosztuje dodatkowy ruch (chyba że masz Włóczęgę).' },
+            { symbol: '🌊', name: 'Rzeka', desc: 'Pole nieprzechodnie, tracisz turę.' },
+            { symbol: '🌉', name: 'Most', desc: 'Można przechodzić przez rzekę.' },
+            { symbol: '🚧', name: 'Płot', desc: 'Pole nieprzechodnie, tracisz turę.' },
+            { symbol: '💧', name: 'Studnia', desc: 'Losowy bonus (nowy osiołek, +1 ruch) lub kara (-1 tura).' },
+            { symbol: '🌴', name: 'Oaza', desc: 'Zyskujesz +1 ruch w obecnej turze.' },
+        ];
+
         const calculateManhattanDistance = (x1, y1, x2, y2) => Math.abs(x1 - x2) + Math.abs(y1 - y2);
-
-        // Checks if a player has a specific donkey ability
         const hasAbility = (player, abilityType) => player.donkeyAbilities.includes(abilityType);
-
-        // Checks if a player has specific equipment
         const hasEquipment = (player, equipmentType) => player.equipment.includes(equipmentType);
 
-        // Function to show toast notifications
         function showToast(message) {
             const toastDiv = document.createElement('div');
             toastDiv.classList.add('toast');
             toastDiv.textContent = message;
             toastContainer.appendChild(toastDiv);
-
-            // Remove toast after animation
-            setTimeout(() => {
-                toastDiv.remove();
-            }, 3000); // Match fadeOut animation duration
+            setTimeout(() => { toastDiv.remove(); }, 3000);
         }
 
-        // Handles actions after landing on a tile
         const handleTileAction = (player, board, playersList) => {
             const { x, y } = player.caravan[0];
             const tile = board[x][y];
             let newLog = [];
 
-            newLog.push(`  ${player.name} wszedl na pole: ${tile.type} (${tile.symbol})`);
-            showToast(`${player.name} wszedl na pole: ${tile.type}`);
+            if (tile.type === 'empty') return;
 
+            newLog.push(`[${player.name}] wszedł na pole: ${tile.type} (${tile.symbol})`);
+            showToast(`${player.name} wszedł na pole: ${tile.type}`);
 
             switch (tile.type) {
                 case 'package':
                     player.points += tile.bonus.points;
                     player.packages.push(tile.bonus.name);
-                    newLog.push(`  ${player.name} zebral pakunek '${tile.bonus.name}'! Zdobyl ${tile.bonus.points} punktow.`);
-                    showToast(`${player.name} zebral pakunek: ${tile.bonus.name}!`);
-                    
-                    // Special package effects
+                    newLog.push(`-> ${player.name} zebrał pakunek '${tile.bonus.name}'! Zdobył ${tile.bonus.points} punktów.`);
+                    showToast(`${player.name} zebrał pakunek: ${tile.bonus.name}!`);
+
                     if (tile.bonus.name === 'Amulet') {
+                        player.equipment.push('amulet');
                         player.amuletActiveTurns = 3;
-                        newLog.push(`  ${player.name} aktywowal Amulet! Chroniony przed pulapkami i Bandytami przez 3 tury.`);
+                        newLog.push(`-> ${player.name} aktywował Amulet! Chroniony na 3 tury.`);
                         showToast(`${player.name}: Amulet aktywny!`);
                     } else if (tile.bonus.name === 'Mapa') {
+                        player.equipment.push('mapa');
                         player.mapaBonusActive = true;
-                        newLog.push(`  ${player.name} znalazl Mape! Zyskuje +1 staly ruch.`);
-                        showToast(`${player.name}: Znalazl Mape!`);
+                        newLog.push(`-> ${player.name} znalazł Mapę! Zyskuje +1 stały ruch.`);
+                        showToast(`${player.name}: Znalazł Mapę!`);
                     }
-                    board[x][y] = Pole('empty', '.'); // Package disappears
+                    board[x][y] = Pole('empty', '.');
                     break;
                 case 'donkey':
-                    newLog.push(`  ${player.name} znalazl luznego osiolka! Dolacza go do karawany.`);
-                    showToast(`${player.name}: Znalazl luznego osiolka!`);
+                    newLog.push(`-> ${player.name} znalazł luźnego osiołka! Dołącza do karawany.`);
+                    showToast(`${player.name}: Znalazł luźnego osiołka!`);
                     player.caravan.push({ x: player.caravan[player.caravan.length - 1].x, y: player.caravan[player.caravan.length - 1].y, osiolek: Osiolek('zwykly') });
-                    board[x][y] = Pole('empty', '.'); // Donkey disappears
+                    board[x][y] = Pole('empty', '.');
                     break;
                 case 'special_donkey':
-                    newLog.push(`  ${player.name} znalazl ${tile.bonus.name}! Dolacza go do karawany.`);
-                    showToast(`${player.name}: Znalazl specjalnego osiolka: ${tile.bonus.name}!`);
+                    newLog.push(`-> ${player.name} znalazł ${tile.bonus.name}! Dołącza do karawany.`);
+                    showToast(`${player.name}: Znalazł specjalnego osiołka: ${tile.bonus.name}!`);
                     player.caravan.push({ x: player.caravan[player.caravan.length - 1].x, y: player.caravan[player.caravan.length - 1].y, osiolek: Osiolek(tile.bonus.donkeyType) });
-                    player.donkeyAbilities.push(tile.bonus.donkeyType);
-                    newLog.push(`  --> ${player.name} zdobywa umiejetnosc: ${tile.bonus.donkeyType.charAt(0).toUpperCase() + tile.bonus.donkeyType.slice(1)}!`);
-                    showToast(`${player.name} zdobywa umiejetnosc: ${tile.bonus.donkeyType}!`);
-                    board[x][y] = Pole('empty', '.'); // Special donkey disappears
+                    if (!player.donkeyAbilities.includes(tile.bonus.donkeyType)) {
+                        player.donkeyAbilities.push(tile.bonus.donkeyType);
+                        newLog.push(`-> ${player.name} zdobywa umiejętność: ${tile.bonus.donkeyType.charAt(0).toUpperCase() + tile.bonus.donkeyType.slice(1)}!`);
+                        showToast(`${player.name} zdobywa umiejętność: ${tile.bonus.donkeyType}!`);
+                    }
+                    board[x][y] = Pole('empty', '.');
+                    break;
+                case 'equipment':
+                    player.equipment.push(tile.bonus.equipmentType);
+                    newLog.push(`-> ${player.name} znalazł sprzęt: ${tile.bonus.equipmentType}!`);
+                    showToast(`${player.name}: Znalazł sprzęt: ${tile.bonus.equipmentType}!`);
+                    board[x][y] = Pole('empty', '.');
                     break;
                 case 'food':
-                    newLog.push(`  ${player.name} wszedl na pole z jedzeniem! Rozmnazanie karawany...`);
-                    showToast(`${player.name}: Jedzenie! Karawana sie rozrasta!`);
-                    const donkeyTypes = ['zwykly', 'twardziel', 'zlodziej', 'prorok', 'wloczega'];
+                    newLog.push(`-> ${player.name} znalazł jedzenie! Karawana się rozmnaża.`);
+                    showToast(`${player.name}: Jedzenie! Karawana rośnie!`);
+                    const donkeyTypes = ['zwykly', 'sturdy', 'thief', 'prophet', 'wanderer', 'guide'];
                     const newDonkeyType = donkeyTypes[Math.floor(Math.random() * donkeyTypes.length)];
                     player.caravan.push({ x: player.caravan[player.caravan.length - 1].x, y: player.caravan[player.caravan.length - 1].y, osiolek: Osiolek(newDonkeyType) });
                     if (newDonkeyType !== 'zwykly') {
-                        player.donkeyAbilities.push(newDonkeyType);
-                        newLog.push(`  Nowy osiolek dolaczony! Typ: ${newDonkeyType.charAt(0).toUpperCase() + newDonkeyType.slice(1)}!`);
-                        showToast(`Nowy osiolek: ${newDonkeyType}!`);
+                        if (!player.donkeyAbilities.includes(newDonkeyType)) {
+                            player.donkeyAbilities.push(newDonkeyType);
+                            newLog.push(`-> Nowy osiołek dołączony! Typ: ${newDonkeyType}!`);
+                            showToast(`Nowy osiołek: ${newDonkeyType}!`);
+                        } else {
+                            newLog.push(`-> Nowy osiołek typu ${newDonkeyType} dołączony! (Umiejętność już jest).`);
+                        }
                     } else {
-                        newLog.push(`  Nowy osiolek dolaczony! Typ: Zwykly.`);
-                        showToast(`Nowy osiolek: Zwykly!`);
+                        newLog.push(`-> Nowy osiołek dołączony! Typ: Zwykły.`);
                     }
-                    board[x][y] = Pole('empty', '.'); // Food disappears
+                    board[x][y] = Pole('empty', '.');
                     break;
                 case 'trap':
-                    if (player.amuletActiveTurns > 0) {
-                        newLog.push(`  ${player.name} wszedl w pulapke, ale zostal ochroniony przez Amulet!`);
-                        showToast(`${player.name}: Amulet chroni przed pulapka!`);
-                    } else if (!hasAbility(player, 'twardziel')) {
-                        player.losesTurn += tile.bonus.turnsLost;
-                        newLog.push(`  ${player.name} wpadl w pulapke! Traci ${tile.bonus.turnsLost} ture/tury.`);
-                        showToast(`${player.name}: Wpadl w pulapke! Traci ture!`);
+                    if (player.amuletActiveTurns > 0 || hasAbility(player, 'sturdy')) {
+                        newLog.push(`-> ${player.name} wpadł w pułapkę, ale został ochroniony!`);
+                        showToast(`${player.name}: Ochrona przed pułapką!`);
                     } else {
-                        newLog.push(`  ${player.name} wszedl w pulapke, ale jego Sturdy Donkey go uratowal!`);
-                        showToast(`${player.name}: Sturdy Donkey ratuje przed pulapka!`);
+                        player.losesTurn += 1;
+                        newLog.push(`-> ${player.name} wpadł w pułapkę! Traci 1 turę.`);
+                        showToast(`${player.name}: Wpadł w pułapkę! Traci turę!`);
                     }
                     break;
                 case 'vineyard':
                     player.extraMoveNextTurn += 1;
-                    newLog.push(`  ${player.name} wszedl na winnice! Zyskuje +1 ruch w nastepnej turze.`);
+                    newLog.push(`-> ${player.name} znalazł winnicę! Zyskuje +1 ruch w następnej turze.`);
                     showToast(`${player.name}: Winnica! +1 ruch w nast. turze!`);
                     break;
                 case 'mountain_shortcut':
                     const { targetX, targetY } = tile.bonus;
-                    newLog.push(`  ${player.name} uzyl gorskiego skrotu! Przeniosl sie na pole (${targetX + 1}, ${targetY + 1}).`);
-                    showToast(`${player.name}: Skrot! Teleport do (${targetX + 1}, ${targetY + 1})!`);
-                    // Teleport head
-                    const currentHeadOsiolek = player.caravan[0].osiolek;
-                    player.caravan[0] = { x: targetX, y: targetY, osiolek: currentHeadOsiolek };
-                    // Other donkeys follow (simplified: appear behind leader at new location)
+                    newLog.push(`-> ${player.name} użył skrótu! Przeniósł się na pole (${targetX + 1}, ${targetY + 1}).`);
+                    showToast(`${player.name}: Skrót! Teleport do (${targetX + 1}, ${targetY + 1})!`);
+                    player.caravan[0] = { x: targetX, y: targetY, osiolek: player.caravan[0].osiolek };
                     for (let i = 1; i < player.caravan.length; i++) {
-                        const prevSeg = player.caravan[i - 1];
                         player.caravan[i] = {
-                            x: prevSeg.x - (prevSeg.x > 0 ? 1 : 0), // Simple trailing logic
-                            y: prevSeg.y,
-                            osiolek: player.caravan[i].osiolek
+                            x: targetX, y: targetY, osiolek: player.caravan[i].osiolek
                         };
                     }
                     break;
                 case 'bazar':
-                    newLog.push(`  ${player.name} jest na Bazarze. Tutaj mozesz sprzedac pakunki (5 pts/each)!`);
+                    newLog.push(`-> ${player.name} jest na Bazarze. Może sprzedać pakunek.`);
                     showToast(`${player.name}: Bazar! Sprzedaj pakunki!`);
                     if (player.packages.length > 0) {
                         const soldPackage = player.packages.pop();
                         player.points += 5;
-                        newLog.push(`  ${player.name} sprzedal '${soldPackage}' za 5 punktow.`);
-                        showToast(`${player.name}: Sprzedal '${soldPackage}'!`);
+                        newLog.push(`-> ${player.name} sprzedał '${soldPackage}' za 5 punktów.`);
+                        showToast(`${player.name}: Sprzedał '${soldPackage}'!`);
                     } else {
-                        newLog.push("  Nie masz pakunkow do sprzedania.");
+                        newLog.push("-> Nie masz pakunków do sprzedania.");
+                        showToast("Brak pakunków do sprzedania.");
                     }
                     break;
                 case 'cactus':
-                    newLog.push(`  ${player.name} wszedl na kaktusa! Ruch w nastepnej turze moze byc spowolniony.`);
-                    showToast(`${player.name}: Kaktus! Ruch spowolniony!`);
+                    newLog.push(`-> ${player.name} wszedł na kaktusa! Ruch w następnej turze może być spowolniony.`);
+                    showToast(`${player.name}: Kaktus!`);
                     break;
                 case 'river':
-                    newLog.push(`  ${player.name} wszedl na rzeke! To pole jest nieprzechodnie.`);
-                    showToast(`${player.name}: Rzeka! Nieprzechodnie!`);
-                    player.losesTurn += 1; // Penalty for entering impassable tile
-                    break;
                 case 'fence':
-                    newLog.push(`  ${player.name} wszedl na plot! To pole jest nieprzechodnie.`);
-                    showToast(`${player.name}: Plot! Nieprzechodnie!`);
-                    player.losesTurn += 1; // Penalty for entering impassable tile
+                    newLog.push(`-> ${player.name} wszedł na przeszkodę! Traci 1 turę.`);
+                    showToast(`${player.name}: Przeszkoda! Traci turę!`);
+                    player.losesTurn += 1;
                     break;
-                case 'bandits': // New Bandolero tile logic
-                    if (player.amuletActiveTurns > 0) {
-                        newLog.push(`  ${player.name} spotkal Bandytow, ale zostal ochroniony przez Amulet!`);
-                        showToast(`${player.name}: Amulet chroni przed Bandytami!`);
-                    } else if (hasAbility(player, 'sturdy')) {
-                        newLog.push(`  ${player.name} spotkal Bandytow, ale jego Sturdy Donkey odstraszyl ich!`);
-                        showToast(`${player.name}: Sturdy Donkey odstrasza Bandytow!`);
+                case 'bandits':
+                    if (player.amuletActiveTurns > 0 || hasAbility(player, 'sturdy')) {
+                        newLog.push(`-> ${player.name} spotkał Bandytów, ale został ochroniony!`);
+                        showToast(`${player.name}: Ochrona przed Bandytami!`);
                     } else {
                         const lostItemType = Math.random() < 0.5 ? 'package' : 'donkey';
                         if (lostItemType === 'package' && player.packages.length > 0) {
                             const lostPackage = player.packages.pop();
-                            newLog.push(`  ${player.name} spotkal Bandytow! Stracil pakunek: '${lostPackage}'.`);
-                            showToast(`${player.name}: Bandyci! Stracil '${lostPackage}'!`);
+                            newLog.push(`-> ${player.name} spotkał Bandytów! Stracił pakunek: '${lostPackage}'.`);
+                            showToast(`${player.name}: Bandyci! Stracił '${lostPackage}'!`);
                         } else if (lostItemType === 'donkey' && player.caravan.length > 1) {
                             const lostDonkey = player.caravan.pop();
-                            newLog.push(`  ${player.name} spotkal Bandytow! Stracil osiolka.`);
-                            showToast(`${player.name}: Bandyci! Stracil osiolka!`);
+                            if (lostDonkey.osiolek.type !== 'zwykly') {
+                                player.donkeyAbilities = player.donkeyAbilities.filter(ability => ability !== lostDonkey.osiolek.type);
+                            }
+                            newLog.push(`-> ${player.name} spotkał Bandytów! Stracił osiołka.`);
+                            showToast(`${player.name}: Bandyci! Stracił osiołka!`);
                         } else {
-                            newLog.push(`  ${player.name} spotkal Bandytow, ale nic nie stracil (brak pakunkow/osiolkow).`);
-                            showToast(`${player.name}: Bandyci... ale nic nie stracil!`);
+                            newLog.push(`-> ${player.name} spotkał Bandytów, ale nic nie stracił.`);
+                            showToast(`${player.name}: Bandyci... ale nic nie stracił!`);
                         }
                     }
                     break;
-                case 'well': // New Well tile logic
+                case 'well':
                     const wellOutcome = Math.random();
-                    if (wellOutcome < 0.4) { // 40% chance for bonus donkey
-                        newLog.push(`  ${player.name} znalazl Studnie! Zyskuje nowego osiolka!`);
-                        showToast(`${player.name}: Studnia! Nowy osiolek!`);
-                        const donkeyTypes = ['zwykly', 'twardziel', 'zlodziej'];
+                    if (wellOutcome < 0.4) {
+                        newLog.push(`-> ${player.name} znalazł Studnię! Zyskuje nowego osiołka!`);
+                        showToast(`${player.name}: Studnia! Nowy osiołek!`);
+                        const donkeyTypes = ['zwykly', 'sturdy', 'thief'];
                         const newDonkeyType = donkeyTypes[Math.floor(Math.random() * donkeyTypes.length)];
                         player.caravan.push({ x: player.caravan[player.caravan.length - 1].x, y: player.caravan[player.caravan.length - 1].y, osiolek: Osiolek(newDonkeyType) });
-                        if (newDonkeyType !== 'zwykly') {
+                        if (newDonkeyType !== 'zwykly' && !player.donkeyAbilities.includes(newDonkeyType)) {
                             player.donkeyAbilities.push(newDonkeyType);
-                            newLog.push(`  Nowy osiolek dolaczony! Typ: ${newDonkeyType.charAt(0).toUpperCase() + newDonkeyType.slice(1)}!`);
-                            showToast(`Nowy osiolek: ${newDonkeyType}!`);
                         }
-                    } else if (wellOutcome < 0.7) { // 30% chance for extra move next turn
-                        newLog.push(`  ${player.name} znalazl Studnie! Zyskuje +1 ruch w nastepnej turze.`);
+                    } else if (wellOutcome < 0.7) {
+                        player.extraMoveNextTurn += 1;
+                        newLog.push(`-> ${player.name} znalazł Studnię! Zyskuje +1 ruch w następnej turze.`);
                         showToast(`${player.name}: Studnia! +1 ruch w nast. turze!`);
-                    } else { // 30% chance for losing a turn
-                        newLog.push(`  ${player.name} znalazl Studnie! Niestety, traci 1 ture.`);
-                        showToast(`${player.name}: Studnia... Traci ture!`);
+                    } else {
+                        newLog.push(`-> ${player.name} znalazł Studnię! Niestety, traci 1 turę.`);
+                        showToast(`${player.name}: Studnia... Traci turę!`);
                         player.losesTurn += 1;
                     }
                     break;
-                case 'oasis': // New Oasis tile logic
-                    newLog.push(`  ${player.name} wszedl na Oaze! Zyskuje +1 ruch w tej turze!`);
+                case 'oasis':
+                    newLog.push(`-> ${player.name} wszedł na Oazę! Zyskuje +1 ruch w tej turze!`);
                     showToast(`${player.name}: Oaza! +1 ruch w tej turze!`);
-                    // This bonus is applied immediately for calculation, then reset.
-                    player.extraMoveNextTurn += 1; // This will be consumed by calculatePossibleMoves for the current turn
-                    break;
-                default:
+                    player.extraMoveNextTurn += 1;
                     break;
             }
 
-            // 'Zlodziej' (Thief) Donkey activation (if player has it and another player has packages)
-            if (hasAbility(player, 'zlodziej')) {
-                if (Math.random() < 0.2) { // 20% chance to activate thief ability
-                    newLog.push(`  ${player.name} probuje aktywowac Thief Donkey...`);
-                    showToast(`${player.name}: Thief Donkey probuje krasc!`);
-                    for (const otherPlayer of playersList) {
-                        if (otherPlayer !== player && otherPlayer.packages.length > 0) {
-                            const stolenPackage = otherPlayer.packages.pop();
-                            player.packages.push(stolenPackage);
-                            player.points += 5; // Bonus for stealing
-                            newLog.push(`  --> SUKCES! ${player.name} ukradl '${stolenPackage}' od ${otherPlayer.name}! Zyskal 5 punktow.`);
-                            showToast(`${player.name}: Ukradl '${stolenPackage}' od ${otherPlayer.name}!`);
-                            break;
-                        }
+            if (hasAbility(player, 'thief')) {
+                if (Math.random() < 0.2) {
+                    const otherPlayersWithPackages = playersList.filter(p => p !== player && p.packages.length > 0);
+                    if (otherPlayersWithPackages.length > 0) {
+                        const targetPlayer = otherPlayersWithPackages[Math.floor(Math.random() * otherPlayersWithPackages.length)];
+                        const stolenPackage = targetPlayer.packages.pop();
+                        player.packages.push(stolenPackage);
+                        player.points += 5;
+                        newLog.push(`-> ZŁODZIEJ! ${player.name} ukradł '${stolenPackage}' od ${targetPlayer.name}! Zyskał 5 punktów.`);
+                        showToast(`${player.name}: Ukradł '${stolenPackage}' od ${targetPlayer.name}!`);
                     }
                 }
             }
-            gameLog.push(...newLog); // Add new logs to the main game log
+            gameLog.push(...newLog);
             updateGameLogUI();
         };
 
-        // Finds the closest interesting tile for Prorok ability
         const findClosestInterestingTile = (player, board, size, maxDistance = 3) => {
             const { x: currentX, y: currentY } = player.caravan[0];
             let closestTile = null;
@@ -516,9 +534,8 @@
                 for (let c = 0; c < size; c++) {
                     const tile = board[r][c];
                     const distance = calculateManhattanDistance(currentX, currentY, r, c);
-
                     if (distance > 0 && distance <= maxDistance) {
-                        if (tile.type === 'package' || tile.type === 'food' || tile.type === 'donkey' || tile.type === 'special_donkey') {
+                        if (['package', 'food', 'donkey', 'special_donkey', 'equipment'].includes(tile.type)) {
                             if (distance < minDistance) {
                                 minDistance = distance;
                                 closestTile = { x: r, y: c, type: tile.type, symbol: tile.symbol };
@@ -530,30 +547,17 @@
             return closestTile;
         };
 
-
-        // Calculates possible moves for a player
         const calculatePossibleMoves = (player, board, size) => {
             const { x: currentX, y: currentY } = player.caravan[0];
-            let possibleMoves = [];
-            let baseMovement = 2; // Default movement
+            const possibleMoves = [];
+            let baseMovement = 2;
 
-            // Add movement bonus from vineyard, equipment, or Mapa
-            baseMovement += player.extraMoveNextTurn; // Consumed here for the current turn
-            if (hasEquipment(player, 'sakwa')) {
-                baseMovement += 1;
-            }
-            if (player.mapaBonusActive) { // Permanent +1 movement from Mapa
-                baseMovement += 1;
-            }
-            
-            // Note: player.extraMoveNextTurn is reset in nextTurn() after the move, not here.
-            // This ensures Oasis bonus is applied to *this* turn's movement calculation,
-            // but cleared before the next turn.
+            baseMovement += player.extraMoveNextTurn;
+            if (hasEquipment(player, 'sakwa')) baseMovement += 1;
+            if (player.mapaBonusActive) baseMovement += 1;
 
-            // Ensure movement is not less than 1
             const actualMovement = Math.max(1, baseMovement);
-
-            const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]; // Up, Down, Right, Left
+            const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
 
             for (const [dx, dy] of directions) {
                 for (let step = 1; step <= actualMovement; step++) {
@@ -564,28 +568,20 @@
                         const tile = board[nextX][nextY];
                         let cost = step;
 
-                        // Cactus costs 1 extra move, UNLESS player has 'wloczega' ability
-                        if (tile.type === 'cactus' && !hasAbility(player, 'wloczega')) {
+                        if (tile.type === 'cactus' && !hasAbility(player, 'wanderer')) {
                             cost += 1;
                         }
-                        
-                        // River and Fence are impassable, unless it's a Bridge
+
                         let blockedPath = false;
-                        for (let i = 1; i <= step; i++) {
-                            const intermediateX = currentX + dx * i;
-                            const intermediateY = currentY + dy * i;
-                            if (intermediateX < 0 || intermediateX >= size || intermediateY < 0 || intermediateY >= size) {
-                                blockedPath = true; // Path out of bounds is blocked
-                                break;
-                            }
-                            const intermediateTile = board[intermediateX][intermediateY];
+                        for (let i = 1; i < step; i++) {
+                            const intermediateTile = board[currentX + dx * i][currentY + dy * i];
                             if (intermediateTile.type === 'fence' || (intermediateTile.type === 'river' && intermediateTile.type !== 'bridge')) {
                                 blockedPath = true;
                                 break;
                             }
                         }
-                        if(blockedPath) continue; // Don't add this move if the path is blocked
-                        
+                        if (blockedPath) continue;
+
                         if (cost <= actualMovement) {
                             possibleMoves.push({ x: nextX, y: nextY, cost: cost });
                         }
@@ -595,651 +591,345 @@
             return possibleMoves;
         };
 
-        // AI movement logic
         const aiMove = (player, board, playersList, size) => {
-            const { x: currentX, y: currentY } = player.caravan[0];
-            let currentTurnPossibleMoves = calculatePossibleMoves(player, board, size); // AI calculates its moves
-            
-            // After calculating possible moves, reset extraMoveNextTurn for this player
-            // This ensures Oasis bonus is consumed for this AI player's turn only.
-            player.extraMoveNextTurn = 0;
+            let currentTurnPossibleMoves = calculatePossibleMoves(player, board, size);
 
-
-            if (currentTurnPossibleMoves.length === 0) {
-                gameLog.push(`  ${player.name} (AI) has no possible moves.`);
-                showToast(`${player.name} (AI) nie ma ruchow.`);
-                updateGameLogUI();
-                return;
-            }
-
-            let bestMove = null;
-            let highestPriority = -Infinity;
-
-            // --- AI Decision Making ---
-            // 1. Prioritize using Bell if available and useful
+            // AI Logic for using the Bell
             if (hasEquipment(player, 'dzwonek') && player.bellCooldown === 0) {
-                const closestLooseDonkey = findClosestLooseDonkey(player, board, size, 2); // Check 2-tile radius
-                if (closestLooseDonkey) {
-                    const emptyAdjacent = findEmptyAdjacentTile(player.caravan[0].x, player.caravan[0].y, board, size);
-                    if (emptyAdjacent) {
-                        // High priority to use bell if it brings a donkey and there's space
-                        // This will effectively be the "best move" if conditions are met
-                        console.log(`AI: Decyduje sie uzyc Dzwonka, by przyciagnac osiolka z (${closestLooseDonkey.x + 1}, ${closestLooseDonkey.y + 1}).`);
-                        useBell(player, board, size); // Directly call bell function for AI
-                        return; // AI's turn is consumed by using the bell
+                const packagesToSteal = playersList.filter(p => p !== player && p.packages.length > 0).length;
+                if (packagesToSteal > 0) {
+                    player.bellCooldown = 3;
+                    gameLog.push(`[${player.name} (AI)] używa Dzwonka, aby ukraść pakunek!`);
+                    showToast(`${player.name} (AI) używa Dzwonka!`);
+                    const targetPlayer = playersList.find(p => p !== player && p.packages.length > 0);
+                    if (targetPlayer) {
+                        const stolenPackage = targetPlayer.packages.pop();
+                        player.packages.push(stolenPackage);
+                        player.points += 5;
+                        gameLog.push(`-> ${player.name} (AI) ukradł '${stolenPackage}' od ${targetPlayer.name}.`);
+                        showToast(`${player.name} (AI) ukradł '${stolenPackage}'!`);
                     }
                 }
             }
-            
-            // 2. Evaluate moves based on tile priority
-            for (const move of currentTurnPossibleMoves) {
-                const { x: targetX, y: targetY } = move;
-                const tile = board[targetX][targetY];
-                let priority = 0;
 
-                // AI Priorities
-                switch (tile.type) {
-                    case 'package':
-                        priority = 10; // Highest priority for packages
-                        if (tile.bonus.name === 'Amulet') priority = 12; // Even higher for Amulet
-                        if (tile.bonus.name === 'Mapa') priority = 11; // High for Mapa
-                        if (hasEquipment(player, 'siodlo') && player.packages.length >= player.caravan.length * 2) priority = 1;
-                        else if (player.packages.length >= player.caravan.length) priority = 1;
-                        break;
-                    case 'special_donkey':
-                        priority = 9;
-                        break;
-                    case 'food':
-                        priority = 8;
-                        if (player.caravan.length >= 5) priority = 2;
-                        break;
-                    case 'donkey':
-                        priority = 7;
-                        if (player.caravan.length >= 5) priority = 1;
-                        break;
-                    case 'bazar':
-                        priority = player.packages.length > 0 ? 6 : 0;
-                        break;
-                    case 'vineyard':
-                        priority = 5;
-                        break;
-                    case 'mountain_shortcut':
-                        const { targetX: shortcutTargetX, targetY: shortcutTargetY } = tile.bonus;
-                        if (shortcutTargetX !== undefined && shortcutTargetY !== undefined && shortcutTargetX >= 0 && shortcutTargetX < size && shortcutTargetY >= 0 && shortcutTargetY < size) {
-                            const shortcutTargetTile = board[shortcutTargetX][shortcutTargetY];
-                            if (shortcutTargetTile && (shortcutTargetTile.type === 'package' || shortcutTargetTile.type === 'food' || shortcutTargetTile.type === 'donkey' || shortcutTargetTile.type === 'special_donkey')) {
-                                priority = 9.5;
-                            }
-                        } else {
-                            priority = 4;
-                        }
-                        break;
-                    case 'trap':
-                        if (player.amuletActiveTurns > 0 || hasAbility(player, 'twardziel')) {
-                            priority = 3; // Safe if protected
-                        } else {
-                            priority = -10; // Very low if vulnerable
-                        }
-                        break;
-                    case 'bandits': // AI logic for Bandolero
-                        if (player.amuletActiveTurns > 0 || hasAbility(player, 'sturdy')) {
-                            priority = 4; // Safe to pass
-                        } else {
-                            priority = -8; // Avoid if vulnerable
-                        }
-                        break;
-                    case 'well': // AI logic for Well
-                        priority = 6; // Moderate priority for potential bonus
-                        break;
-                    case 'oasis': // AI logic for Oasis
-                        priority = 7.5; // High priority for immediate movement bonus
-                        break;
-                    default:
-                        priority = 0;
-                        break;
+            // AI Logic for Prophet
+            if (hasAbility(player, 'prophet') && player.prophetRevealedTile === null) {
+                player.prophetRevealedTile = findClosestInterestingTile(player, board, size);
+                if (player.prophetRevealedTile) {
+                    gameLog.push(`[${player.name} (AI)] (Prorok) wyczuwa coś na polu (${player.prophetRevealedTile.x + 1}, ${player.prophetRevealedTile.y + 1}).`);
                 }
+            }
 
-                // AI Prorok ability: if Prorok revealed an interesting tile, add bonus priority if this move leads towards it
-                if (hasAbility(player, 'prorok') && player.prophetRevealedTile) {
-                    const { x: rx, y: ry } = player.prophetRevealedTile;
-                    const distanceToRevealed = calculateManhattanDistance(targetX, targetY, rx, ry);
-                    // If moving closer to the revealed tile, slightly boost priority
-                    if (distanceToRevealed < calculateManhattanDistance(currentX, currentY, rx, ry)) {
-                        priority += 0.5;
+            // Find a target to move towards
+            let bestMove = null;
+            let bestScore = -Infinity;
+
+            const targets = [];
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    const tile = board[r][c];
+                    if (['package', 'special_donkey', 'donkey', 'food', 'equipment'].includes(tile.type)) {
+                        targets.push({ x: r, y: c, type: tile.type, score: calculateItemScore(tile.type) });
                     }
                 }
+            }
 
-                priority -= (calculateManhattanDistance(currentX, currentY, targetX, targetY) * 0.1);
+            // Simple scoring system for AI decision making
+            function calculateItemScore(type) {
+                switch (type) {
+                    case 'package': return 10;
+                    case 'special_donkey': return 8;
+                    case 'donkey': return 5;
+                    case 'equipment': return 5;
+                    case 'food': return 3;
+                    default: return 0;
+                }
+            }
 
-                if (priority > highestPriority) {
-                    highestPriority = priority;
+            for (const move of currentTurnPossibleMoves) {
+                const moveTile = board[move.x][move.y];
+                let score = calculateItemScore(moveTile.type);
+
+                // Additional scoring based on proximity to other targets
+                const distanceToClosestTarget = Math.min(...targets.map(target => calculateManhattanDistance(move.x, move.y, target.x, target.y)));
+                score += (20 / (distanceToClosestTarget + 1)); // Prefer moves closer to other items
+
+                // Avoid bad tiles
+                if (['trap', 'bandits', 'river', 'fence'].includes(moveTile.type) && !hasAbility(player, 'sturdy') && player.amuletActiveTurns === 0) {
+                    score -= 50; // Heavily penalize bad moves
+                }
+                if (moveTile.type === 'cactus' && !hasAbility(player, 'wanderer')) {
+                    score -= 5;
+                }
+
+                if (score > bestScore) {
+                    bestScore = score;
                     bestMove = move;
                 }
             }
 
+            // If no "good" move, just take the first possible move
+            if (!bestMove && currentTurnPossibleMoves.length > 0) {
+                bestMove = currentTurnPossibleMoves[0];
+            }
+
             if (bestMove) {
-                const oldCaravan = JSON.parse(JSON.stringify(player.caravan));
-                player.caravan[0] = { x: bestMove.x, y: bestMove.y, osiolek: oldCaravan[0].osiolek };
-                for (let i = 1; i < player.caravan.length; i++) {
-                    player.caravan[i] = { ...oldCaravan[i - 1], osiolek: oldCaravan[i].osiolek };
-                }
-
-                gameLog.push(`  ${player.name} (AI) moves to (${bestMove.x + 1}, ${bestMove.y + 1}).`);
-                showToast(`${player.name} (AI) rusza sie.`);
-                handleTileAction(player, board, playersList);
-            } else {
-                const safeMoves = currentTurnPossibleMoves.filter(move => {
-                    const tile = board[move.x][move.y];
-                    const isTrapSafe = tile.type !== 'trap' || player.amuletActiveTurns > 0 || hasAbility(player, 'twardziel');
-                    const isBanditSafe = tile.type !== 'bandits' || player.amuletActiveTurns > 0 || hasAbility(player, 'sturdy');
-                    const isImpassable = tile.type === 'fence' || (tile.type === 'river' && tile.type !== 'bridge');
-                    return isTrapSafe && isBanditSafe && !isImpassable;
-                });
-                if (safeMoves.length > 0) {
-                    const randomMove = safeMoves[Math.floor(Math.random() * safeMoves.length)];
-                    const oldCaravan = JSON.parse(JSON.stringify(player.caravan));
-                    player.caravan[0] = { x: randomMove.x, y: randomMove.y, osiolek: oldCaravan[0].osiolek };
-                    for (let i = 1; i < player.caravan.length; i++) {
-                        player.caravan[i] = { ...oldCaravan[i - 1], osiolek: oldCaravan[i].osiolek };
-                    }
-                    gameLog.push(`  ${player.name} (AI) makes a random safe move to (${randomMove.x + 1}, ${randomMove.y + 1}).`);
-                    showToast(`${player.name} (AI) wykonuje losowy ruch.`);
-                    handleTileAction(player, board, playersList);
-                } else {
-                     gameLog.push(`  ${player.name} (AI) has no safe moves and stays put.`);
-                     showToast(`${player.name} (AI) zostaje w miejscu.`);
-                }
+                movePlayer(player, bestMove.x, bestMove.y);
             }
-            updateGameLogUI();
         };
 
-        // Utility to find a loose donkey within a given radius
-        const findClosestLooseDonkey = (player, board, size, radius) => {
-            const { x: playerX, y: playerY } = player.caravan[0];
-            let closestDonkey = null;
-            let minDistance = Infinity;
+        const movePlayer = (player, newX, newY) => {
+            const oldX = player.caravan[0].x;
+            const oldY = player.caravan[0].y;
 
-            for (let r = 0; r < size; r++) {
-                for (let c = 0; c < size; c++) {
-                    if (board[r][c].type === 'donkey') {
-                        const dist = calculateManhattanDistance(playerX, playerY, r, c);
-                        if (dist <= radius && dist < minDistance) {
-                            minDistance = dist;
-                            closestDonkey = { x: r, y: c };
-                        }
-                    }
-                }
+            const newCaravan = [{ x: newX, y: newY, osiolek: player.caravan[0].osiolek }];
+            for (let i = 1; i < player.caravan.length; i++) {
+                newCaravan.push({ x: player.caravan[i - 1].x, y: player.caravan[i - 1].y, osiolek: player.caravan[i].osiolek });
             }
-            return closestDonkey;
+            player.caravan = newCaravan;
+            handleTileAction(player, board, players);
         };
 
-        // Utility to find an empty adjacent tile
-        const findEmptyAdjacentTile = (x, y, board, size) => {
-            const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-            for (const [dx, dy] of directions) {
-                const newX = x + dx;
-                const newY = y + dy;
-                if (newX >= 0 && newX < size && newY >= 0 && newY < size && board[newX][newY].type === 'empty') {
-                    return { x: newX, y: newY };
-                }
-            }
-            return null;
-        };
-
-        // Function to use the Bell equipment
-        const useBell = (player, board, size) => {
-            if (!hasEquipment(player, 'dzwonek') || player.bellCooldown > 0) {
-                gameLog.push(`  ${player.name}: Nie mozesz teraz uzyc Dzwonka.`);
-                showToast(`${player.name}: Dzwonek nieaktywny!`);
-                updateGameLogUI();
-                return;
-            }
-
-            const closestDonkey = findClosestLooseDonkey(player, board, size, 2); // Radius of 2 for Bell
-            if (closestDonkey) {
-                const emptyAdjacent = findEmptyAdjacentTile(player.caravan[0].x, player.caravan[0].y, board, size);
-                if (emptyAdjacent) {
-                    // Move the donkey
-                    board[emptyAdjacent.x][emptyAdjacent.y] = Pole('donkey', '🐴');
-                    board[closestDonkey.x][closestDonkey.y] = Pole('empty', '.');
-                    gameLog.push(`  ${player.name} uzyl Dzwonka! Przyciagnal luznego osiolka z (${closestDonkey.x + 1}, ${closestDonkey.y + 1}) na pole (${emptyAdjacent.x + 1}, ${emptyAdjacent.y + 1}).`);
-                    showToast(`${player.name}: Uzyto Dzwonka! Przyciagnieto osiolka!`);
-                    player.bellCooldown = 3; // Set cooldown
-                } else {
-                    gameLog.push(`  ${player.name}: Brak wolnego pola obok karawany, aby przyciagnac osiolka.`);
-                    showToast(`${player.name}: Brak miejsca na osiolka!`);
-                }
-            } else {
-                gameLog.push(`  ${player.name}: W poblizu nie ma luznych osiolkow, by uzyc Dzwonka.`);
-                showToast(`${player.name}: Brak osiolkow w poblizu!`);
-            }
-            updateGameLogUI();
-            renderGame(); // Re-render board and UI
-        };
-
-
-        // --- GLOBAL GAME STATE ---
-        let board = [];
-        let players = [];
-        let currentPlayerIndex = 0;
-        let gameLog = [];
-        let gameOver = false;
-        let winner = null;
-        let selectedMove = null; // For normal player movement selection
-        let selectedPackageForRelocation = null; // For Shadow Donkey ability
-        let possibleMoves = [];
-
-        // --- GAME INITIALIZATION ---
-        function startGame() {
-            board = initializeBoard(BOARD_SIZE);
-            players = [
-                Gracz("Burrito", "🔵", "🟦", 0, 0, false), // Human player
-                Gracz("Czerwony", "🔴", "🟥", BOARD_SIZE - 1, BOARD_SIZE - 1, true)  // AI player
-            ];
-            players[0].equipment.push('sakwa');
-            players[0].equipment.push('dzwonek'); // Human starts with bell
-            players[1].donkeyAbilities.push('prorok'); // AI starts with Prorok donkey
-            players[1].donkeyAbilities.push('wloczega'); // AI starts with Wloczega donkey
-
-
-            currentPlayerIndex = 0;
-            gameLog = ["--- Rozpoczynamy Karawane Burrito! ---"];
-            gameOver = false;
-            winner = null;
-            selectedMove = null;
-            selectedPackageForRelocation = null; // Reset this on game start
-            possibleMoves = [];
-
-            gameModal.classList.add('hidden'); // Hide modal
-            gameContainer.classList.remove('hidden'); // Show game UI
-
-            renderGame();
-            nextTurnButton.classList.remove('hidden');
-            restartButton.classList.add('hidden');
-            gameStatusElement.textContent = '';
-            showToast("Gra rozpoczeta!");
-        }
-
-        // --- UI RENDERING FUNCTIONS ---
-
-        // Renders the game board
-        function renderGameBoard() {
-            gameBoardElement.innerHTML = ''; // Clear board
-            board.forEach((row, rIdx) => {
-                row.forEach((tile, cIdx) => {
+        const updateGameUI = () => {
+            gameBoardElement.innerHTML = '';
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
                     const tileDiv = document.createElement('div');
-                    tileDiv.classList.add('grid-item'); /* Removed bg-gray-50 for custom background */
+                    tileDiv.classList.add('grid-item');
+                    tileDiv.dataset.x = i;
+                    tileDiv.dataset.y = j;
+                    tileDiv.textContent = board[i][j].symbol;
 
-                    // Highlight possible moves for human player
-                    if (!players[currentPlayerIndex].isAI && possibleMoves.some(m => m.x === rIdx && m.y === cIdx)) {
-                        tileDiv.classList.add('bg-lime-200', 'cursor-pointer', 'hover:bg-lime-300'); /* Lighter green for possible moves */
-                        tileDiv.onclick = () => handleTileClick(rIdx, cIdx);
-                    } else { // For AI or if no possible moves, remove interactive classes
-                        tileDiv.classList.remove('cursor-pointer', 'hover:bg-lime-300');
-                        tileDiv.onclick = null;
+                    // Add click handler for human player
+                    if (!players[currentPlayerIndex].isAI && possibleMoves.some(m => m.x === i && m.y === j)) {
+                        tileDiv.classList.add('highlight-move');
+                        tileDiv.addEventListener('click', () => {
+                            if (!moveInProgress) {
+                                moveInProgress = true;
+                                movePlayer(players[currentPlayerIndex], i, j);
+                                setTimeout(() => {
+                                    endTurn();
+                                    moveInProgress = false;
+                                }, 500); // Small delay for visual feedback
+                            }
+                        });
                     }
-
-                    // Highlight selected move (for normal movement)
-                    if (selectedMove && selectedMove.x === rIdx && selectedMove.y === cIdx) {
-                        tileDiv.classList.add('bg-yellow-300'); /* Distinct yellow for selected move */
-                    }
-                    // Highlight selected package for relocation (Shadow Donkey)
-                    else if (selectedPackageForRelocation && selectedPackageForRelocation.x === rIdx && selectedPackageForRelocation.y === cIdx) {
-                        tileDiv.classList.add('bg-purple-300'); // Different highlight for selected package
-                    }
-
-                    // Get content for the tile (player or tile symbol)
-                    let tileContent = tile.symbol;
-                    for (const player of players) {
-                        // Leader
-                        if (player.caravan[0].x === rIdx && player.caravan[0].y === cIdx) {
-                            tileContent = `<span class="font-bold text-lg">${player.leaderSymbol}${player.caravan.length}</span>`;
-                            if (player.name === "Burrito") tileDiv.classList.add('text-blue-700');
-                            if (player.name === "Czerwony") tileDiv.classList.add('text-red-700');
-                            break;
-                        }
-                        // Caravan segments
-                        else if (player.caravan.slice(1).some(seg => seg.x === rIdx && seg.y === cIdx)) {
-                            tileContent = `<span class="text-sm">${player.caravanSymbol}</span>`;
-                            if (player.name === "Burrito") tileDiv.classList.add('text-blue-500');
-                            if (player.name === "Czerwony") tileDiv.classList.add('text-red-500');
-                            break;
-                        }
-                    }
-
-                    tileDiv.innerHTML = tileContent;
                     gameBoardElement.appendChild(tileDiv);
+                }
+            }
+
+            // Draw players on top of the board
+            players.forEach(player => {
+                player.caravan.forEach((segment, index) => {
+                    const tileDiv = gameBoardElement.querySelector(`[data-x="${segment.x}"][data-y="${segment.y}"]`);
+                    if (tileDiv) {
+                        const playerSymbol = index === 0 ? player.leaderSymbol : player.caravanSymbol;
+                        const symbolSpan = document.createElement('span');
+                        symbolSpan.textContent = playerSymbol;
+                        symbolSpan.classList.add(index === 0 ? `player-${players.indexOf(player) + 1}` : '');
+                        tileDiv.innerHTML = ''; // Clear existing content
+                        tileDiv.appendChild(symbolSpan);
+                    }
                 });
             });
-        }
 
-        // Renders player information
-        function renderPlayersInfo() {
+            updatePlayersInfoUI();
+        };
+
+        const updatePlayersInfoUI = () => {
             playersInfoElement.innerHTML = '';
             players.forEach((player, index) => {
                 const playerDiv = document.createElement('div');
-                playerDiv.classList.add('mb-4', 'p-3', 'rounded-md', 'border');
-                if (currentPlayerIndex === index) {
-                    playerDiv.classList.add('bg-amber-100', 'border-amber-500', 'border-2', 'shadow-xl', 'scale-102'); /* Stronger highlight for current player */
-                } else {
-                    playerDiv.classList.add('bg-gray-50', 'border-gray-200', 'shadow-md'); /* Subtle shadow for other players */
-                }
-
-                // Helper to format ability/equipment names
-                const formatName = (name) => name.charAt(0).toUpperCase() + name.slice(1);
+                const playerColorClass = `player-${index + 1}`;
+                const playerPackages = player.packages.join(', ') || 'Brak';
+                const playerAbilities = player.donkeyAbilities.join(', ') || 'Brak';
+                const playerEquipment = player.equipment.join(', ') || 'Brak';
 
                 playerDiv.innerHTML = `
-                    <h3 class="text-lg font-bold flex items-center gap-2">
-                        ${player.leaderSymbol} ${player.name} ${player.isAI ? '<span class="text-xs text-gray-600">(AI)</span>' : ''}
-                    </h3>
-                    <p>Punkty: <span class="font-semibold">${player.points}</span></p>
-                    <p>Karawana: <span class="font-semibold">${player.caravan.length} osiołków</span></p>
-                    <p>Pakunki: <span class="font-semibold">${player.packages.join(', ') || 'Brak'}</span></p>
-                    ${player.donkeyAbilities.length > 0 ? `<p>Umiejętności Osiołków: <span class="font-semibold">${player.donkeyAbilities.map(formatName).join(', ')}</span></p>` : ''}
-                    ${player.equipment.length > 0 ? `<p>Ekwipunek: <span class="font-semibold">${player.equipment.map(formatName).join(', ')}</span></p>` : ''}
-                    ${player.losesTurn > 0 ? `<p class="text-red-600 font-semibold animate-pulse">Tracisz ${player.losesTurn} turę/tury!</p>` : ''}
-                    ${player.amuletActiveTurns > 0 ? `<p class="text-purple-600 font-semibold">✨ Amulet aktywny: ${player.amuletActiveTurns} tura/tury!</p>` : ''}
-                    ${player.mapaBonusActive ? `<p class="text-yellow-600 font-semibold">🗺️ Bonus z Mapy: +1 ruch!</p>` : ''}
-                    ${player.shadowCooldown > 0 ? `<p class="text-gray-600 font-semibold">⚫ Czarny Osiołek: ${player.shadowCooldown} tura/tury do odnowienia.</p>` : ''}
-                    ${hasEquipment(player, 'dzwonek') ? (player.bellCooldown > 0 ? `<p class="text-orange-600 font-semibold">🔔 Dzwonek: ${player.bellCooldown} tura/tury do odnowienia.</p>` : `<p class="text-lime-600 font-semibold">🔔 Dzwonek: Gotowy!</p>`) : ''}
-                    ${hasAbility(player, 'prorok') && player.prophetRevealedTile ? `<p class="text-teal-600 font-semibold">🌟 Prorok ujawnia: ${formatName(player.prophetRevealedTile.type)} (${player.prophetRevealedTile.symbol}) na (${player.prophetRevealedTile.x + 1}, ${player.prophetRevealedTile.y + 1})</p>` : ''}
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-2xl ${playerColorClass}">${player.leaderSymbol}</span>
+                        <p class="font-bold text-gray-800">${player.name}</p>
+                        ${currentPlayerIndex === index ? ' <span class="text-xs font-semibold text-lime-600">(Twoja Tura)</span>' : ''}
+                        ${player.isAI ? ' <span class="text-xs font-semibold text-sky-600">(AI)</span>' : ''}
+                    </div>
+                    <p class="text-sm text-gray-600">Punkty: <span class="font-semibold text-green-700">${player.points}</span></p>
+                    <p class="text-sm text-gray-600">Karawana: <span class="font-semibold">${player.caravan.length}</span> osiołków</p>
+                    <p class="text-sm text-gray-600">Pakunki: <span class="font-semibold">${player.packages.length}</span> (${playerPackages})</p>
+                    <p class="text-sm text-gray-600">Umiejętności: <span class="font-semibold">${playerAbilities}</span></p>
+                    <p class="text-sm text-gray-600">Sprzęt: <span class="font-semibold">${playerEquipment}</span></p>
+                    ${player.losesTurn > 0 ? `<p class="text-sm text-red-600 font-semibold mt-1">Traci tury: ${player.losesTurn}</p>` : ''}
+                    ${player.amuletActiveTurns > 0 ? `<p class="text-sm text-blue-600 font-semibold mt-1">Amulet: ${player.amuletActiveTurns} tury</p>` : ''}
                 `;
                 playersInfoElement.appendChild(playerDiv);
             });
-        }
+        };
 
-        // Updates the game log UI
-        function updateGameLogUI() {
+        const updateGameLogUI = () => {
             gameLogElement.innerHTML = '';
-            // Display last 10 log entries
-            const displayLog = gameLog.slice(Math.max(gameLog.length - 10, 0));
-            displayLog.forEach(message => {
-                const p = document.createElement('p');
-                p.classList.add('bg-stone-50', 'p-1', 'rounded-sm', 'text-gray-800'); /* Slightly darker text for log */
-                p.textContent = message;
-                gameLogElement.appendChild(p);
+            gameLog.slice(-10).reverse().forEach(log => { // Show last 10 entries
+                const logEntry = document.createElement('p');
+                logEntry.textContent = log;
+                gameLogElement.appendChild(logEntry);
             });
-            gameLogElement.scrollTop = gameLogElement.scrollHeight; // Scroll to bottom
-        }
+            gameLogElement.scrollTop = gameLogElement.scrollHeight;
+        };
 
-        // Renders the legend
-        function renderLegend() {
+        const updateLegendUI = () => {
             legendInfoElement.innerHTML = '';
-            legendData.forEach(item => {
-                const div = document.createElement('div');
-                div.classList.add('flex', 'items-center', 'gap-2', 'p-1', 'bg-stone-50', 'rounded-sm'); /* Consistent sandy background */
-                div.innerHTML = `<span class="font-semibold">${item.symbol}</span> <span>${item.description}</span>`;
-                legendInfoElement.appendChild(div);
+            legend.forEach(item => {
+                const legendItem = document.createElement('div');
+                legendItem.classList.add('flex', 'items-center', 'gap-2');
+                legendItem.innerHTML = `<span class="text-lg">${item.symbol}</span><p class="font-semibold">${item.name}</p>`;
+                legendInfoElement.appendChild(legendItem);
             });
-        }
+        };
 
-        // Main rendering function
-        function renderGame() {
-            renderPlayersInfo();
-            // Possible moves are calculated *before* rendering the board
-            // This ensures they are up-to-date for the current player
-            if (!players[currentPlayerIndex].isAI) {
-                possibleMoves = calculatePossibleMoves(players[currentPlayerIndex], board, BOARD_SIZE);
-            } else {
-                possibleMoves = []; // Clear for AI
-            }
-            renderGameBoard(); // Renders the board based on current state
-            updateNextTurnButtonState();
-        }
+        const updateTurnUI = () => {
+            const currentPlayer = players[currentPlayerIndex];
+            gameStatusElement.textContent = `Tura: ${currentPlayer.name}`;
 
-        // Updates the state of the "Next Turn" button
-        function updateNextTurnButtonState() {
-            if (gameOver) {
+            if (currentPlayer.isAI) {
                 nextTurnButton.classList.add('hidden');
                 useBellButton.classList.add('hidden');
-                restartButton.classList.remove('hidden'); // This is handled by modal, but good for direct restart button
-                gameStatusElement.textContent = `Gra zakonczona! Zwyciezca: ${winner}`;
+                setTimeout(aiTurn, 1000); // AI moves automatically
             } else {
-                const currentPlayer = players[currentPlayerIndex];
-
-                // Update Next Turn button
-                if (currentPlayer.isAI) {
-                    nextTurnButton.textContent = "Tura AI (poczekaj...)";
-                    nextTurnButton.disabled = true;
-                } else {
-                    nextTurnButton.textContent = selectedMove ? "Wykonaj Ruch" : (selectedPackageForRelocation ? "Wybierz puste pole" : "Wybierz Ruch");
-                    nextTurnButton.disabled = (!selectedMove && !selectedPackageForRelocation);
-                }
-
-                // Update Use Bell button
-                if (!currentPlayer.isAI && hasEquipment(currentPlayer, 'dzwonek')) {
+                nextTurnButton.classList.remove('hidden');
+                nextTurnButton.textContent = `Wykonaj Ruch ( ${players[currentPlayerIndex].extraMoveNextTurn + 2 + (hasEquipment(currentPlayer, 'sakwa') ? 1 : 0) + (currentPlayer.mapaBonusActive ? 1 : 0)} ruchy)`;
+                if (hasEquipment(currentPlayer, 'dzwonek') && currentPlayer.bellCooldown === 0) {
                     useBellButton.classList.remove('hidden');
-                    const closestDonkey = findClosestLooseDonkey(currentPlayer, board, BOARD_SIZE, 2);
-                    const emptyAdjacent = findEmptyAdjacentTile(currentPlayer.caravan[0].x, currentPlayer.caravan[0].y, board, BOARD_SIZE);
-                    useBellButton.disabled = (currentPlayer.bellCooldown > 0 || !closestDonkey || !emptyAdjacent);
                 } else {
                     useBellButton.classList.add('hidden');
                 }
-            }
-        }
 
-        // --- GAME FLOW ---
-
-        // Handles a player's turn
-        function nextTurn() {
-            if (gameOver) return;
-
-            // Deep copy of players and board to avoid direct state mutation issues before commit
-            let updatedPlayers = JSON.parse(JSON.stringify(players));
-            let currentGracz = updatedPlayers[currentPlayerIndex];
-            let newBoard = JSON.parse(JSON.stringify(board));
-
-            // Decrement Amulet active turns if active
-            if (currentGracz.amuletActiveTurns > 0) {
-                currentGracz.amuletActiveTurns -= 1;
-                if (currentGracz.amuletActiveTurns === 0) {
-                    gameLog.push(`  ${currentGracz.name}: Amulet przestal dzialac.`);
-                    showToast(`${currentGracz.name}: Amulet przestal dzialac.`);
-                }
-            }
-            // Decrement Shadow Donkey cooldown
-            if (currentGracz.shadowCooldown > 0) {
-                currentGracz.shadowCooldown -= 1;
-            }
-            // Decrement Bell cooldown
-            if (currentGracz.bellCooldown > 0) {
-                currentGracz.bellCooldown -= 1;
-            }
-
-
-            // Reset extraMoveNextTurn before current player's action
-            currentGracz.extraMoveNextTurn = 0;
-
-
-            // Prorok ability: Reveal an interesting tile at the start of the turn
-            if (hasAbility(currentGracz, 'prorok')) {
-                currentGracz.prophetRevealedTile = findClosestInterestingTile(currentGracz, newBoard, BOARD_SIZE);
-                if (currentGracz.prophetRevealedTile) {
-                    gameLog.push(`  ${currentGracz.name} (Prorok): Najblizszy cel: ${currentGracz.prophetRevealedTile.type.charAt(0).toUpperCase() + currentGracz.prophetRevealedTile.type.slice(1)} (${currentGracz.prophetRevealedTile.symbol}) na (${currentGracz.prophetRevealedTile.x + 1}, ${currentGracz.prophetRevealedTile.y + 1}).`);
-                    showToast(`${currentGracz.name} (Prorok): Ujawniono cel!`);
+                if (currentPlayer.losesTurn > 0) {
+                    nextTurnButton.disabled = true;
+                    nextTurnButton.textContent = `Pauza (${currentPlayer.losesTurn} tury)`;
                 } else {
-                    gameLog.push(`  ${currentGracz.name} (Prorok): Nie widac zadnych interesujacych celow w poblizu.`);
+                    nextTurnButton.disabled = false;
                 }
+            }
+        };
+
+        const startNewGame = () => {
+            gameModal.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+
+            board = initializeBoard(BOARD_SIZE);
+            players = [];
+            players.push(Gracz('Gracz', '🚶', '🚶', 0, 0, false));
+            
+            for (let i = 0; i < AI_PLAYER_COUNT; i++) {
+                const aiNames = ['AI-1', 'AI-2', 'AI-3'];
+                const aiSymbols = ['🤠', '🤖', '👾'];
+                players.push(Gracz(aiNames[i], aiSymbols[i], aiSymbols[i], 6, 6, true));
+            }
+            
+            players = shuffleArray(players);
+            currentPlayerIndex = 0;
+            gameLog = ['Nowa gra rozpoczęta!'];
+            updateLegendUI();
+            startTurn();
+        };
+
+        const shuffleArray = (array) => {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        };
+        
+        const startTurn = () => {
+            const currentPlayer = players[currentPlayerIndex];
+            gameLog.push(`\n--- Tura ${currentPlayer.name} ---`);
+
+            if (currentPlayer.losesTurn > 0) {
+                currentPlayer.losesTurn--;
+                gameLog.push(`-> ${currentPlayer.name} traci turę. Pozostało: ${currentPlayer.losesTurn}`);
+                setTimeout(endTurn, 1000);
             } else {
-                currentGracz.prophetRevealedTile = null; // Clear if not Prorok or no interesting tile
-            }
-
-
-            // Check if player loses turn
-            if (currentGracz.losesTurn > 0) {
-                gameLog.push(`  ${currentGracz.name} traci ture z powodu pulapki/przeklenstwa. Pozostalo: ${currentGracz.losesTurn}.`);
-                showToast(`${currentGracz.name}: Traci ture!`);
-                currentGracz.losesTurn -= 1;
-                players = updatedPlayers; // Update players state
-                renderPlayersInfo();
-                updateGameLogUI();
-                // Move to next player immediately
-                currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-                setTimeout(nextTurn, 500); // Small delay for AI turn or next human turn
-                return;
-            }
-
-            // Human player logic
-            if (!currentGracz.isAI) {
-                if (!selectedMove && !selectedPackageForRelocation) { // If neither a move nor a package relocation is selected
-                    gameLog.push(`  ${currentGracz.name}: Wybierz pole, na ktore chcesz sie ruszyc (lub pakunek jesli masz Czarnego Osiolka).`);
-                    updateGameLogUI();
-                    return;
-                }
-                // If a package was selected for relocation, but no empty tile clicked, it means the button was clicked
-                // This shouldn't happen if the UI properly forces a tile click. But as a safeguard:
-                if (selectedPackageForRelocation) {
-                    gameLog.push(`  ${currentGracz.name}: Najpierw wybierz pakunek, a potem puste sąsiadujące pole.`);
-                    updateGameLogUI();
-                    selectedPackageForRelocation = null; // Clear state
-                    renderGame();
-                    return;
-                }
-
-                // Normal move execution
-                if (selectedMove) {
-                    // Update entire caravan's position
-                    const oldCaravan = JSON.parse(JSON.stringify(currentGracz.caravan));
-                    currentGracz.caravan[0] = { x: selectedMove.x, y: selectedMove.y, osiolek: oldCaravan[0].osiolek };
-                    for (let i = 1; i < currentGracz.caravan.length; i++) {
-                        currentGracz.caravan[i] = { ...oldCaravan[i - 1], osiolek: oldCaravan[i].osiolek };
-                    }
-                    gameLog.push(`  ${currentGracz.name} moved to (${selectedMove.x + 1}, ${selectedMove.y + 1}).`);
-                    showToast(`${currentGracz.name} ruszyl sie na (${selectedMove.x + 1}, ${selectedMove.y + 1}).`);
-                    handleTileAction(currentGracz, newBoard, updatedPlayers);
-                    selectedMove = null; // Reset selected move
-                }
-            } else {
-                // AI logic
-                aiMove(currentGracz, newBoard, updatedPlayers, BOARD_SIZE);
-            }
-
-            // Update global state
-            board = newBoard;
-            players = updatedPlayers;
-
-            // Check for game over condition (e.g., all packages collected)
-            const packagesOnBoard = board.flat().filter(tile => tile.type === 'package').length;
-            if (packagesOnBoard === 0) {
-                gameOver = true;
-                const finalScores = players.map(p => ({ name: p.name, points: p.points }));
-                const winningScore = Math.max(...finalScores.map(p => p.points));
-                const winners = finalScores.filter(p => p.points === winningScore);
-                winner = winners.length === 1 ? winners[0].name : "Remis";
-                gameLog.push("--- KONIEC GRY! ---");
-                gameLog.push(`Zwyciezca: ${winners.length === 1 ? winners[0].name : "Remis"} z ${winningScore} punktami!`);
-                showToast("KONIEC GRY!");
+                if (currentPlayer.amuletActiveTurns > 0) currentPlayer.amuletActiveTurns--;
+                if (currentPlayer.bellCooldown > 0) currentPlayer.bellCooldown--;
                 
-                // Show Game Over Modal
-                modalTitle.textContent = "Koniec Gry!";
-                modalMessage.innerHTML = `Zwycięzca: <strong>${winner}</strong> z <strong>${winningScore}</strong> punktami!`;
-                modalButton.textContent = "Zagraj Ponownie";
-                modalButton.onclick = startGame; // Link to restart game
-                gameModal.classList.remove('hidden');
-                gameContainer.classList.add('hidden'); // Hide game UI
-
-                renderGame();
-                updateGameLogUI();
-                return;
-            }
-
-            // Move to next player
-            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-            renderGame();
-            updateGameLogUI();
-
-            // If next player is AI, trigger their turn after a short delay
-            if (players[currentPlayerIndex].isAI) {
-                setTimeout(nextTurn, 1000); // 1-second delay for AI turn
-            }
-        }
-
-        // Handles tile clicks (for human player)
-        function handleTileClick(x, y) {
-            if (gameOver || players[currentPlayerIndex].isAI) return;
-
-            const currentGracz = players[currentPlayerIndex];
-
-            // --- Shadow Donkey (Czarny Osiolek) ability handling ---
-            // If player has the ability and it's not on cooldown
-            if (hasAbility(currentGracz, 'shadow') && currentGracz.shadowCooldown === 0) {
-                if (selectedPackageForRelocation !== null) { // Player is in the process of relocating a package (second click)
-                    const pakunekX = selectedPackageForRelocation.x;
-                    const pakunekY = selectedPackageForRelocation.y;
-
-                    // Check if new tile is adjacent and empty
-                    if (calculateManhattanDistance(pakunekX, pakunekY, x, y) === 1 && board[x][y].type === 'empty') {
-                        const pakunekBonus = board[pakunekX][pakunekY].bonus;
-                        board[x][y] = Pole('package', pakunekBonus.name === 'Amulet' ? '✨' : pakunekBonus.name === 'Mapa' ? '🗺️' : '📦', pakunekBonus);
-                        board[pakunekX][pakunekY] = Pole('empty', '.');
-                        gameLog.push(`  ${currentGracz.name} uzyl Czarnego Osiolka! Przesunal pakunek z (${pakunekX + 1},${pakunekY + 1}) na (${x + 1},${y + 1}).`);
-                        showToast(`${currentGracz.name}: Przesunal pakunek Czarnego Osiolka!`);
-                        currentGracz.shadowCooldown = 3; // Set cooldown
-                        selectedPackageForRelocation = null; // Reset package selection
-                            selectedMove = null; // Clear normal move selection as well
-                        updateGameLogUI();
-                        renderGame(); // Re-render board and UI
-                        return; // Action consumed, turn may continue or wait for next click on 'Wykonaj Ruch'
+                // Prophet ability logic
+                if (hasAbility(currentPlayer, 'prophet')) {
+                    const revealedTile = findClosestInterestingTile(currentPlayer, board, BOARD_SIZE);
+                    if (revealedTile) {
+                        gameLog.push(`-> ${currentPlayer.name} (Prorok) wyczuwa coś na polu (${revealedTile.x + 1}, ${revealedTile.y + 1}).`);
                     } else {
-                        gameLog.push(`  Nieprawidlowe przesuniecie pakunku: wybierz sasiadujace puste pole.`);
-                        showToast(`Nieprawidlowe przesuniecie!`);
-                        updateGameLogUI();
-                        selectedPackageForRelocation = null; // Reset invalid selection
-                        renderGame(); // Re-render to clear highlight
-                        return;
+                        gameLog.push(`-> ${currentPlayer.name} (Prorok) nic nie wyczuwa w pobliżu.`);
                     }
-                } else if (board[x][y].type === 'package') { // Player clicks a package to start relocation (first click)
-                    selectedPackageForRelocation = { x, y };
-                    selectedMove = null; // Clear any normal move selection
-                    gameLog.push(`  ${currentGracz.name}: Wybrano pakunek na (${x + 1}, ${y + 1}). Kliknij sasiadujace puste pole, by go tam przesunac.`);
-                    showToast(`${currentGracz.name}: Wybrano pakunek do przesuniecia!`);
-                    updateGameLogUI();
-                    renderGame(); // Re-render to show selected package
-                    return;
                 }
+                
+                possibleMoves = calculatePossibleMoves(currentPlayer, board, BOARD_SIZE);
+                updateGameUI();
+                updateTurnUI();
             }
-            // --- End Shadow Donkey handling ---
+            updateGameLogUI();
+        };
 
+        const endTurn = () => {
+            players[currentPlayerIndex].extraMoveNextTurn = 0;
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            startTurn();
+        };
 
-            // Normal move logic - only if no package relocation is pending
-            if (selectedPackageForRelocation === null) {
-                const isPossible = possibleMoves.some(move => move.x === x && move.y === y);
-                if (isPossible) {
-                    selectedMove = { x, y };
-                    renderGame(); // Re-render to show selected move
-                } else {
-                    gameLog.push(`  ${players[currentPlayerIndex].name}: Nie mozesz ruszyc sie na pole (${x + 1}, ${y + 1}).`);
-                    showToast(`${players[currentPlayerIndex].name}: Nie mozna ruszyc sie na to pole!`);
-                    updateGameLogUI();
-                    selectedMove = null; // Clear any invalid selection
-                    renderGame();
-                }
+        const aiTurn = () => {
+            const currentPlayer = players[currentPlayerIndex];
+            gameStatusElement.textContent = `Tura: ${currentPlayer.name} (AI)`;
+            aiMove(currentPlayer, board, players, BOARD_SIZE);
+            updateGameUI();
+            setTimeout(endTurn, 1500); // AI turn takes 1.5s for better flow
+        };
+
+        const checkWinCondition = () => {
+            const winningPlayer = players.find(p => p.points >= 50 && p.caravan.length >= 5);
+            if (winningPlayer) {
+                gameModal.classList.remove('hidden');
+                modalTitle.textContent = `Koniec Gry! Zwycięzca: ${winningPlayer.name}! 🎉`;
+                modalMessage.textContent = `Karawana ${winningPlayer.name} zdobyła co najmniej 50 punktów i ma 5 osiołków. Gratulacje!`;
+                modalButton.textContent = 'Zagraj Ponownie';
+                restartButton.classList.remove('hidden');
+                nextTurnButton.classList.add('hidden');
+                useBellButton.classList.add('hidden');
             }
-        }
+        };
 
         // --- EVENT LISTENERS ---
-        nextTurnButton.addEventListener('click', nextTurn);
-        restartButton.addEventListener('click', startGame); // This is now likely only from the game-over modal
+        modalButton.addEventListener('click', startNewGame);
+        restartButton.addEventListener('click', startNewGame);
+
+        nextTurnButton.addEventListener('click', () => {
+            gameLog.push(`[${players[currentPlayerIndex].name}] wykonał ruch.`);
+            endTurn();
+        });
+
         useBellButton.addEventListener('click', () => {
-            useBell(players[currentPlayerIndex], board, BOARD_SIZE);
-            // After using the bell, the turn is still ongoing for the human player to move
-            // We just need to re-render the game state and update button states
-            renderGame();
-            updateGameLogUI();
+            const player = players[currentPlayerIndex];
+            if (hasEquipment(player, 'dzwonek') && player.bellCooldown === 0) {
+                const otherPlayersWithPackages = players.filter(p => p !== player && p.packages.length > 0);
+                if (otherPlayersWithPackages.length > 0) {
+                    const targetPlayer = otherPlayersWithPackages[Math.floor(Math.random() * otherPlayersWithPackages.length)];
+                    const stolenPackage = targetPlayer.packages.pop();
+                    player.packages.push(stolenPackage);
+                    player.points += 5;
+                    player.bellCooldown = 3;
+                    gameLog.push(`[${player.name}] używa Dzwonka i kradnie '${stolenPackage}' od ${targetPlayer.name}! Zyskał 5 punktów.`);
+                    showToast(`Użyłeś Dzwonka! Ukradłeś pakunek od ${targetPlayer.name}!`);
+                    updateGameUI();
+                    updateTurnUI();
+                } else {
+                    showToast('Nie ma od kogo kraść! Brak pakunków u innych graczy.');
+                    gameLog.push(`[${player.name}] chciał użyć Dzwonka, ale nikt nie ma pakunków.`);
+                }
+            }
         });
 
-        // --- INITIAL SETUP ---
+        // Initial setup
         document.addEventListener('DOMContentLoaded', () => {
-            // Display initial modal (Start Game)
             gameModal.classList.remove('hidden');
-            modalTitle.textContent = "Karawana Burrito";
-            modalMessage.innerHTML = "Wyrusz w ekscytującą podróż przez pustynię, zbierając pakunki i rozbudowując swoją karawanę osiołków! Czy uda Ci się zebrać najwięcej punktów?";
-            modalButton.textContent = "Rozpocznij Grę";
-            modalButton.onclick = startGame;
-            
-            renderLegend(); // Render legend on load
+            updateLegendUI();
         });
-
     </script>
 </body>
 </html>
