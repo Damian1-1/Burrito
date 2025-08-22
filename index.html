@@ -122,17 +122,21 @@
             equipment: [], // List of owned equipment (e.g., 'siodlo', 'sakwa')
             isAI,
             shadowCooldown: 0, // Cooldown for 'cien' donkey ability
+            amuletActiveTurns: 0, // Turns Amulet is active for trap/bandit immunity
+            mapaBonusActive: false, // Permanent +1 movement from Mapa
         });
 
         // --- GAME LOGIC FUNCTIONS ---
 
         // Board initialization
         const initializeBoard = (size) => {
-            const board = Array.from({ length: size }, () => Array.from({ length: size }, () => Pole('empty', '.')));
+            const board = Array.from({ length: size }, () => Array(size).fill(null).map(() => Pole('empty', '.')));
 
-            // Packages
+            // Packages (mixed types including new ones)
             board[1][1] = Pole('package', '📦', { points: 10, name: 'Wino' });
             board[5][5] = Pole('package', '📦', { points: 15, name: 'Przyprawy' });
+            board[0][0] = Pole('package', '✨', { points: 5, name: 'Amulet' }); // New Amulet package
+            board[6][0] = Pole('package', '🗺️', { points: 5, name: 'Mapa' });    // New Mapa package
 
             // Loose Donkeys
             board[2][5] = Pole('donkey', '🐴');
@@ -160,11 +164,24 @@
             board[5][2] = Pole('river', '🌊');
 
             // Bazaar
-            board[0][6] = Pole('bazaar', '💰');
+            board[0][6] = Pole('bazar', '💰');
 
             // Fences
             board[2][2] = Pole('fence', '🚧');
             board[4][4] = Pole('fence', '🚧');
+
+            // New: Bandolero (Bandits)
+            board[1][3] = Pole('bandits', '🤠', { packagesLost: 1, donkeysLost: 1 });
+            board[5][1] = Pole('bandits', '🤠', { packagesLost: 1, donkeysLost: 1 });
+
+            // New: Well
+            board[4][6] = Pole('well', '💧'); // Can give bonus or penalty
+            board[1][6] = Pole('well', '💧');
+
+            // New: Oasis
+            board[6][3] = Pole('oasis', '🌴');
+            board[0][3] = Pole('oasis', '🌴');
+
 
             // Special Donkeys (unique)
             board[1][5] = Pole('special_donkey', '⚪', { donkeyType: 'guide', name: 'Bialy Osiolek' }); // Guide Donkey
@@ -190,55 +207,66 @@
             const tile = board[x][y];
             let newLog = [];
 
-            newLog.push(`  ${player.name} entered tile: ${tile.type} (${tile.symbol})`);
+            newLog.push(`  ${player.name} wszedl na pole: ${tile.type} (${tile.symbol})`);
 
             switch (tile.type) {
                 case 'package':
                     player.points += tile.bonus.points;
                     player.packages.push(tile.bonus.name);
-                    newLog.push(`  ${player.name} collected package '${tile.bonus.name}'! Gained ${tile.bonus.points} points.`);
+                    newLog.push(`  ${player.name} zebral pakunek '${tile.bonus.name}'! Zdobyl ${tile.bonus.points} punktow.`);
+                    
+                    // Special package effects
+                    if (tile.bonus.name === 'Amulet') {
+                        player.amuletActiveTurns = 3;
+                        newLog.push(`  ${player.name} aktywowal Amulet! Chroniony przed pulapkami i Bandytami przez 3 tury.`);
+                    } else if (tile.bonus.name === 'Mapa') {
+                        player.mapaBonusActive = true;
+                        newLog.push(`  ${player.name} znalazl Mape! Zyskuje +1 staly ruch.`);
+                    }
                     board[x][y] = Pole('empty', '.'); // Package disappears
                     break;
                 case 'donkey':
-                    newLog.push(`  ${player.name} found a loose donkey! It joins the caravan.`);
+                    newLog.push(`  ${player.name} znalazl luznego osiolka! Dolacza go do karawany.`);
                     player.caravan.push({ x: player.caravan[player.caravan.length - 1].x, y: player.caravan[player.caravan.length - 1].y, osiolek: Osiolek('zwykly') });
                     board[x][y] = Pole('empty', '.'); // Donkey disappears
                     break;
                 case 'special_donkey':
-                    newLog.push(`  ${player.name} found ${tile.bonus.name}! It joins the caravan.`);
+                    newLog.push(`  ${player.name} znalazl ${tile.bonus.name}! Dolacza go do karawany.`);
                     player.caravan.push({ x: player.caravan[player.caravan.length - 1].x, y: player.caravan[player.caravan.length - 1].y, osiolek: Osiolek(tile.bonus.donkeyType) });
                     player.donkeyAbilities.push(tile.bonus.donkeyType);
-                    newLog.push(`  --> ${player.name} gains ability: ${tile.bonus.donkeyType.charAt(0).toUpperCase() + tile.bonus.donkeyType.slice(1)}!`);
+                    newLog.push(`  --> ${player.name} zdobywa umiejetnosc: ${tile.bonus.donkeyType.charAt(0).toUpperCase() + tile.bonus.donkeyType.slice(1)}!`);
                     board[x][y] = Pole('empty', '.'); // Special donkey disappears
                     break;
                 case 'food':
-                    newLog.push(`  ${player.name} entered a food tile! Caravan reproduces...`);
+                    newLog.push(`  ${player.name} wszedl na pole z jedzeniem! Rozmnazanie karawany...`);
                     const donkeyTypes = ['zwykly', 'twardziel', 'zlodziej', 'prorok', 'wloczega'];
                     const newDonkeyType = donkeyTypes[Math.floor(Math.random() * donkeyTypes.length)];
                     player.caravan.push({ x: player.caravan[player.caravan.length - 1].x, y: player.caravan[player.caravan.length - 1].y, osiolek: Osiolek(newDonkeyType) });
                     if (newDonkeyType !== 'zwykly') {
                         player.donkeyAbilities.push(newDonkeyType);
-                        newLog.push(`  New donkey joined! Type: ${newDonkeyType.charAt(0).toUpperCase() + newDonkeyType.slice(1)}!`);
+                        newLog.push(`  Nowy osiolek dolaczony! Typ: ${newDonkeyType.charAt(0).toUpperCase() + newDonkeyType.slice(1)}!`);
                     } else {
-                        newLog.push(`  New donkey joined! Type: Zwykly.`);
+                        newLog.push(`  Nowy osiolek dolaczony! Typ: Zwykly.`);
                     }
                     board[x][y] = Pole('empty', '.'); // Food disappears
                     break;
                 case 'trap':
-                    if (!hasAbility(player, 'twardziel')) {
+                    if (player.amuletActiveTurns > 0) {
+                        newLog.push(`  ${player.name} wszedl w pulapke, ale zostal ochroniony przez Amulet!`);
+                    } else if (!hasAbility(player, 'twardziel')) {
                         player.losesTurn += tile.bonus.turnsLost;
-                        newLog.push(`  ${player.name} fell into a trap! Loses ${tile.bonus.turnsLost} turn(s).`);
+                        newLog.push(`  ${player.name} wpadl w pulapke! Traci ${tile.bonus.turnsLost} ture/tury.`);
                     } else {
-                        newLog.push(`  ${player.name} entered a trap, but their Sturdy Donkey saved them!`);
+                        newLog.push(`  ${player.name} wszedl w pulapke, ale jego Sturdy Donkey go uratowal!`);
                     }
                     break;
                 case 'vineyard':
                     player.extraMoveNextTurn += 1;
-                    newLog.push(`  ${player.name} entered a vineyard! Gains +1 movement next turn.`);
+                    newLog.push(`  ${player.name} wszedl na winnice! Zyskuje +1 ruch w nastepnej turze.`);
                     break;
                 case 'mountain_shortcut':
                     const { targetX, targetY } = tile.bonus;
-                    newLog.push(`  ${player.name} used a mountain shortcut! Teleported to (${targetX + 1}, ${targetY + 1}).`);
+                    newLog.push(`  ${player.name} uzyl gorskiego skrotu! Przeniosl sie na pole (${targetX + 1}, ${targetY + 1}).`);
                     // Teleport head
                     const currentHeadOsiolek = player.caravan[0].osiolek;
                     player.caravan[0] = { x: targetX, y: targetY, osiolek: currentHeadOsiolek };
@@ -253,25 +281,67 @@
                     }
                     break;
                 case 'bazaar':
-                    newLog.push(`  ${player.name} is at the Bazaar. You can sell packages (5 pts/each)!`);
+                    newLog.push(`  ${player.name} jest na Bazarze. Tutaj mozesz sprzedac pakunki (5 pkt/szt)!`);
                     if (player.packages.length > 0) {
                         const soldPackage = player.packages.pop();
                         player.points += 5;
-                        newLog.push(`  ${player.name} sold '${soldPackage}' for 5 points.`);
+                        newLog.push(`  ${player.name} sprzedal '${soldPackage}' za 5 punktow.`);
                     } else {
-                        newLog.push("  You have no packages to sell.");
+                        newLog.push("  Nie masz pakunkow do sprzedania.");
                     }
                     break;
                 case 'cactus':
-                    newLog.push(`  ${player.name} entered a cactus! Movement may be slowed next turn.`);
+                    newLog.push(`  ${player.name} wszedl na kaktusa! Ruch w nastepnej turze moze byc spowolniony.`);
                     break;
                 case 'river':
-                    newLog.push(`  ${player.name} entered a river! This tile is impassable.`);
+                    newLog.push(`  ${player.name} wszedl na rzeke! To pole jest nieprzechodnie.`);
                     player.losesTurn += 1; // Penalty for entering impassable tile
                     break;
                 case 'fence':
-                    newLog.push(`  ${player.name} entered a fence! This tile is impassable.`);
+                    newLog.push(`  ${player.name} wszedl na plot! To pole jest nieprzechodnie.`);
                     player.losesTurn += 1; // Penalty for entering impassable tile
+                    break;
+                case 'bandits': // New Bandolero tile logic
+                    if (player.amuletActiveTurns > 0) {
+                        newLog.push(`  ${player.name} spotkal Bandytow, ale zostal ochroniony przez Amulet!`);
+                    } else if (hasAbility(player, 'sturdy')) {
+                        newLog.push(`  ${player.name} spotkal Bandytow, ale jego Sturdy Donkey odstraszyl ich!`);
+                    } else {
+                        const lostItemType = Math.random() < 0.5 ? 'package' : 'donkey';
+                        if (lostItemType === 'package' && player.packages.length > 0) {
+                            const lostPackage = player.packages.pop();
+                            newLog.push(`  ${player.name} spotkal Bandytow! Stracil pakunek: '${lostPackage}'.`);
+                        } else if (lostItemType === 'donkey' && player.caravan.length > 1) {
+                            const lostDonkey = player.caravan.pop();
+                            newLog.push(`  ${player.name} spotkal Bandytow! Stracil osiolka.`);
+                        } else {
+                            newLog.push(`  ${player.name} spotkal Bandytow, ale nic nie stracil (brak pakunkow/osiolkow).`);
+                        }
+                    }
+                    break;
+                case 'well': // New Well tile logic
+                    const wellOutcome = Math.random();
+                    if (wellOutcome < 0.4) { // 40% chance for bonus donkey
+                        newLog.push(`  ${player.name} znalazl Studnie! Zyskuje nowego osiolka!`);
+                        const donkeyTypes = ['zwykly', 'twardziel', 'zlodziej'];
+                        const newDonkeyType = donkeyTypes[Math.floor(Math.random() * donkeyTypes.length)];
+                        player.caravan.push({ x: player.caravan[player.caravan.length - 1].x, y: player.caravan[player.caravan.length - 1].y, osiolek: Osiolek(newDonkeyType) });
+                        if (newDonkeyType !== 'zwykly') {
+                            player.donkeyAbilities.push(newDonkeyType);
+                            newLog.push(`  Nowy osiolek dolaczony! Typ: ${newDonkeyType.charAt(0).toUpperCase() + newDonkeyType.slice(1)}!`);
+                        }
+                    } else if (wellOutcome < 0.7) { // 30% chance for extra move next turn
+                        newLog.push(`  ${player.name} znalazl Studnie! Zyskuje +1 ruch w nastepnej turze.`);
+                        player.extraMoveNextTurn += 1;
+                    } else { // 30% chance for losing a turn
+                        newLog.push(`  ${player.name} znalazl Studnie! Niestety, traci 1 ture.`);
+                        player.losesTurn += 1;
+                    }
+                    break;
+                case 'oasis': // New Oasis tile logic
+                    newLog.push(`  ${player.name} wszedl na Oaze! Zyskuje +1 ruch w tej turze!`);
+                    // This bonus is applied immediately for calculation, then reset.
+                    player.extraMoveNextTurn += 1;
                     break;
                 default:
                     break;
@@ -280,13 +350,13 @@
             // 'Zlodziej' (Thief) Donkey activation (if player has it and another player has packages)
             if (hasAbility(player, 'zlodziej')) {
                 if (Math.random() < 0.2) { // 20% chance to activate thief ability
-                    newLog.push(`  ${player.name} tries to activate Thief Donkey...`);
+                    newLog.push(`  ${player.name} probuje aktywowac Thief Donkey...`);
                     for (const otherPlayer of playersList) {
                         if (otherPlayer !== player && otherPlayer.packages.length > 0) {
                             const stolenPackage = otherPlayer.packages.pop();
                             player.packages.push(stolenPackage);
                             player.points += 5; // Bonus for stealing
-                            newLog.push(`  --> SUCCESS! ${player.name} stole '${stolenPackage}' from ${otherPlayer.name}! Gained 5 points.`);
+                            newLog.push(`  --> SUKCES! ${player.name} ukradl '${stolenPackage}' od ${otherPlayer.name}! Zyskal 5 punktow.`);
                             break;
                         }
                     }
@@ -302,13 +372,16 @@
             let possibleMoves = [];
             let baseMovement = 2; // Default movement
 
-            // Add movement bonus from vineyard or equipment
+            // Add movement bonus from vineyard, equipment, or Mapa
             baseMovement += player.extraMoveNextTurn;
-            if (hasEquipment(player, 'sakwa')) { // Example equipment
+            if (hasEquipment(player, 'sakwa')) {
+                baseMovement += 1;
+            }
+            if (player.mapaBonusActive) { // Permanent +1 movement from Mapa
                 baseMovement += 1;
             }
             
-            // Reset bonuses after considering them
+            // Reset extraMoveNextTurn after considering it for current turn
             player.extraMoveNextTurn = 0;
 
             // Ensure movement is not less than 1
@@ -330,7 +403,7 @@
                             cost += 1;
                         }
                         
-                        // River and Fence are impassable, unless it's a Bridge (Bridge is treated as a normal tile, so no extra cost)
+                        // River and Fence are impassable, unless it's a Bridge
                         let blockedPath = false;
                         for (let i = 1; i <= step; i++) {
                             const intermediateX = currentX + dx * i;
@@ -378,52 +451,65 @@
                 // AI Priorities
                 switch (tile.type) {
                     case 'package':
-                        priority = 10; // Highest priority
-                        if (hasEquipment(player, 'siodlo') && player.packages.length >= player.caravan.length * 2) priority = 1; // Has saddle, but already many packages
-                        else if (player.packages.length >= player.caravan.length) priority = 1; // Already many packages
+                        priority = 10; // Highest priority for packages
+                        if (tile.bonus.name === 'Amulet') priority = 12; // Even higher for Amulet
+                        if (tile.bonus.name === 'Mapa') priority = 11; // High for Mapa
+                        if (hasEquipment(player, 'siodlo') && player.packages.length >= player.caravan.length * 2) priority = 1;
+                        else if (player.packages.length >= player.caravan.length) priority = 1;
                         break;
                     case 'special_donkey':
-                        priority = 9; // Special donkeys are very valuable
+                        priority = 9;
                         break;
                     case 'food':
-                        priority = 8; // Caravan expansion
-                        if (player.caravan.length >= 5) priority = 2; // Limit infinite reproduction
+                        priority = 8;
+                        if (player.caravan.length >= 5) priority = 2;
                         break;
                     case 'donkey':
-                        priority = 7; // Loose donkey
-                        if (player.caravan.length >= 5) priority = 1; // Limit infinite acquisition
+                        priority = 7;
+                        if (player.caravan.length >= 5) priority = 1;
                         break;
                     case 'bazaar':
-                        priority = player.packages.length > 0 ? 6 : 0; // Sell packages if available
+                        priority = player.packages.length > 0 ? 6 : 0;
                         break;
                     case 'vineyard':
                         priority = 5;
                         break;
                     case 'mountain_shortcut':
                         const { targetX: shortcutTargetX, targetY: shortcutTargetY } = tile.bonus;
-                        // Check if shortcut leads to something good
                         if (shortcutTargetX !== undefined && shortcutTargetY !== undefined && shortcutTargetX >= 0 && shortcutTargetX < size && shortcutTargetY >= 0 && shortcutTargetY < size) {
                             const shortcutTargetTile = board[shortcutTargetX][shortcutTargetY];
                             if (shortcutTargetTile && (shortcutTargetTile.type === 'package' || shortcutTargetTile.type === 'food' || shortcutTargetTile.type === 'donkey' || shortcutTargetTile.type === 'special_donkey')) {
-                                priority = 9.5; // High priority if it leads to something good
+                                priority = 9.5;
                             }
                         } else {
                             priority = 4;
                         }
                         break;
                     case 'trap':
-                        if (!hasAbility(player, 'twardziel')) {
-                            priority = -10; // Very low priority for traps
+                        if (player.amuletActiveTurns > 0 || hasAbility(player, 'twardziel')) {
+                            priority = 3; // Safe if protected
                         } else {
-                            priority = 3; // Low priority trap if it can be avoided
+                            priority = -10; // Very low if vulnerable
                         }
                         break;
+                    case 'bandits': // AI logic for Bandolero
+                        if (player.amuletActiveTurns > 0 || hasAbility(player, 'sturdy')) {
+                            priority = 4; // Safe to pass
+                        } else {
+                            priority = -8; // Avoid if vulnerable
+                        }
+                        break;
+                    case 'well': // AI logic for Well
+                        priority = 6; // Moderate priority for potential bonus
+                        break;
+                    case 'oasis': // AI logic for Oasis
+                        priority = 7.5; // High priority for immediate movement bonus
+                        break;
                     default:
-                        priority = 0; // Empty tiles
+                        priority = 0;
                         break;
                 }
 
-                // Add distance modifier: closer targets have higher priority
                 priority -= (calculateManhattanDistance(currentX, currentY, targetX, targetY) * 0.1);
 
                 if (priority > highestPriority) {
@@ -433,7 +519,6 @@
             }
 
             if (bestMove) {
-                // Update entire caravan's position
                 const oldCaravan = JSON.parse(JSON.stringify(player.caravan));
                 player.caravan[0] = { x: bestMove.x, y: bestMove.y, osiolek: oldCaravan[0].osiolek };
                 for (let i = 1; i < player.caravan.length; i++) {
@@ -443,21 +528,21 @@
                 gameLog.push(`  ${player.name} (AI) moves to (${bestMove.x + 1}, ${bestMove.y + 1}).`);
                 handleTileAction(player, board, playersList);
             } else {
-                // If AI has no "best" move, make a random safe move
                 const safeMoves = possibleMoves.filter(move => {
                     const tile = board[move.x][move.y];
-                    return (tile.type !== 'trap' || hasAbility(player, 'twardziel')) &&
-                           tile.type !== 'fence' && tile.type !== 'river'; // Avoid fences and rivers
+                    const isTrapSafe = tile.type !== 'trap' || player.amuletActiveTurns > 0 || hasAbility(player, 'twardziel');
+                    const isBanditSafe = tile.type !== 'bandits' || player.amuletActiveTurns > 0 || hasAbility(player, 'sturdy');
+                    const isImpassable = tile.type === 'fence' || (tile.type === 'river' && tile.type !== 'bridge');
+                    return isTrapSafe && isBanditSafe && !isImpassable;
                 });
                 if (safeMoves.length > 0) {
                     const randomMove = safeMoves[Math.floor(Math.random() * safeMoves.length)];
-                    // Update entire caravan's position
                     const oldCaravan = JSON.parse(JSON.stringify(player.caravan));
                     player.caravan[0] = { x: randomMove.x, y: randomMove.y, osiolek: oldCaravan[0].osiolek };
                     for (let i = 1; i < player.caravan.length; i++) {
                         player.caravan[i] = { ...oldCaravan[i - 1], osiolek: oldCaravan[i].osiolek };
                     }
-                    gameLog.push(`  ${player.name} (AI) makes a random move to (${randomMove.x + 1}, ${randomMove.y + 1}).`);
+                    gameLog.push(`  ${player.name} (AI) makes a random safe move to (${randomMove.x + 1}, ${randomMove.y + 1}).`);
                     handleTileAction(player, board, playersList);
                 } else {
                      gameLog.push(`  ${player.name} (AI) has no safe moves and stays put.`);
@@ -488,9 +573,14 @@
         const legendData = [
             { symbol: '🔵/🔴', description: 'Start Gracza' },
             { symbol: '📦', description: 'Pakunek (punkty)' },
+            { symbol: '✨', description: 'Pakunek Amulet (ochrona)' },
+            { symbol: '🗺️', description: 'Pakunek Mapa (+1 ruch)' },
             { symbol: '🐴', description: 'Luźny Osiołek (+1 do karawany)' },
             { symbol: '🍎', description: 'Jedzenie (rozmnożenie karawany)' },
             { symbol: '☠️', description: 'Pułapka (tracisz turę)' },
+            { symbol: '🤠', description: 'Bandolero (tracisz osiołka/pakunek)' }, // New legend entry
+            { symbol: '💧', description: 'Studnia (bonus/kara)' },             // New legend entry
+            { symbol: '🌴', description: 'Oaza (+1 ruch w tej turze)' },        // New legend entry
             { symbol: '🍇', description: 'Winnica (+1 ruch w nast. turze)' },
             { symbol: '🏔️', description: 'Górski Skrót (teleportacja)' },
             { symbol: '🌵', description: 'Kaktus (+1 koszt ruchu)' },
@@ -500,8 +590,8 @@
             { symbol: '🚧', description: 'Płot (nieprzechodnia bariera)' },
             { symbol: '⚪', description: 'Biały Osiołek (ignoruje kary ruchu)' },
             { symbol: '⚫', description: 'Czarny Osiołek (przesuwa pakunek co 3 tury)' },
-            { symbol: '🟫', description: 'Brązowy Osiołek (+1 pojemnosc pakunkow)' },
-            { symbol: '⬜', description: 'Szary Osiołek (niewidzialny dla Bandolero - nieaktywny w tej wersji)' },
+            { symbol: '🟫', description: 'Brązowy Osiołek (ochrona przed Bandolero)' }, // Updated description
+            { symbol: '⬜', description: 'Szary Osiołek (niewidzialny - nieaktywny)' },
             { symbol: '.', description: 'Puste Pole' },
         ];
 
@@ -510,11 +600,11 @@
         function startGame() {
             board = initializeBoard(BOARD_SIZE);
             players = [
-                Gracz("Niebieski", "🔵", "🟦", 0, 0, false), // Human player
+                Gracz("Burrito", "🔵", "🟦", 0, 0, false), // Human player
                 Gracz("Czerwony", "🔴", "🟥", BOARD_SIZE - 1, BOARD_SIZE - 1, true)  // AI player
             ];
             players[0].equipment.push('sakwa');
-            players[1].equipment.push('siodlo');
+            // players[1].equipment.push('siodlo'); // AI starts with saddle
 
             currentPlayerIndex = 0;
             gameLog = ["--- Rozpoczynamy Karawane Burrito! ---"];
@@ -559,14 +649,14 @@
                         // Leader
                         if (player.caravan[0].x === rIdx && player.caravan[0].y === cIdx) {
                             tileContent = `<span class="font-bold text-lg">${player.leaderSymbol}${player.caravan.length}</span>`;
-                            if (player.name === "Niebieski") tileDiv.classList.add('text-blue-700');
+                            if (player.name === "Burrito") tileDiv.classList.add('text-blue-700');
                             if (player.name === "Czerwony") tileDiv.classList.add('text-red-700');
                             break;
                         }
                         // Caravan segments
                         else if (player.caravan.slice(1).some(seg => seg.x === rIdx && seg.y === cIdx)) {
                             tileContent = `<span class="text-sm">${player.caravanSymbol}</span>`;
-                            if (player.name === "Niebieski") tileDiv.classList.add('text-blue-500');
+                            if (player.name === "Burrito") tileDiv.classList.add('text-blue-500');
                             if (player.name === "Czerwony") tileDiv.classList.add('text-red-500');
                             break;
                         }
@@ -600,6 +690,8 @@
                     ${player.donkeyAbilities.length > 0 ? `<p>Umiejętności Osiołków: <span class="font-semibold">${player.donkeyAbilities.join(', ')}</span></p>` : ''}
                     ${player.equipment.length > 0 ? `<p>Ekwipunek: <span class="font-semibold">${player.equipment.join(', ')}</span></p>` : ''}
                     ${player.losesTurn > 0 ? `<p class="text-red-600 font-semibold">Tracisz ${player.losesTurn} turę/tury!</p>` : ''}
+                    ${player.amuletActiveTurns > 0 ? `<p class="text-purple-600 font-semibold">Amulet aktywny: ${player.amuletActiveTurns} tura/tury!</p>` : ''}
+                    ${player.mapaBonusActive ? `<p class="text-yellow-600 font-semibold">Bonus z Mapy: +1 ruch!</p>` : ''}
                 `;
                 playersInfoElement.appendChild(playerDiv);
             });
@@ -665,6 +757,15 @@
             let updatedPlayers = JSON.parse(JSON.stringify(players));
             let currentGracz = updatedPlayers[currentPlayerIndex];
             let newBoard = JSON.parse(JSON.stringify(board));
+
+            // Decrement Amulet active turns if active
+            if (currentGracz.amuletActiveTurns > 0) {
+                currentGracz.amuletActiveTurns -= 1;
+                if (currentGracz.amuletActiveTurns === 0) {
+                    gameLog.push(`  ${currentGracz.name}: Amulet przestal dzialac.`);
+                }
+            }
+
 
             // Check if player loses turn
             if (currentGracz.losesTurn > 0) {
@@ -734,6 +835,47 @@
         function handleTileClick(x, y) {
             if (gameOver || players[currentPlayerIndex].isAI) return;
 
+            // --- Shadow Donkey (Czarny Osiolek) ability handling ---
+            const currentGracz = players[currentPlayerIndex];
+            // If the player has the 'shadow' ability and it's not on cooldown
+            if (hasAbility(currentGracz, 'shadow') && currentGracz.shadowCooldown === 0) {
+                // If a package is clicked, mark it as target for relocation
+                if (board[x][y].type === 'package') {
+                    selectedMove = { x, y, isPackageRelocation: true };
+                    gameLog.push(`  ${currentGracz.name}: Wybrano pakunek na (${x + 1}, ${y + 1}). Kliknij sąsiednie puste pole, by go tam przesunąć.`);
+                    updateGameLogUI();
+                    renderGameBoard(); // Re-render to show selected package
+                    return; // Don't process as a normal move yet
+                }
+                // If a blank tile is clicked after selecting a package
+                else if (selectedMove && selectedMove.isPackageRelocation) {
+                    const pakunekX = selectedMove.x;
+                    const pakunekY = selectedMove.y;
+
+                    // Check if new tile is adjacent and empty
+                    if (calculateManhattanDistance(pakunekX, pakunekY, x, y) === 1 && board[x][y].type === 'empty') {
+                        const pakunekBonus = board[pakunekX][pakunekY].bonus;
+                        board[x][y] = Pole('package', pakunekBonus.name === 'Amulet' ? '✨' : pakunekBonus.name === 'Mapa' ? '🗺️' : '📦', pakunekBonus);
+                        board[pakunekX][pakunekY] = Pole('empty', '.');
+                        gameLog.push(`  ${currentGracz.name} uzyl Czarnego Osiolka! Przesunal pakunek z (${pakunekX + 1},${pakunekY + 1}) na (${x + 1},${y + 1}).`);
+                        currentGracz.shadowCooldown = 3; // Set cooldown
+                        selectedMove = null; // Reset selection
+                        updateGameLogUI();
+                        renderGame(); // Re-render board and UI
+                        return; // Action consumed, wait for next turn click
+                    } else {
+                        gameLog.push(`  Nieprawidlowe przesuniecie pakunku: wybierz sąsiadujące puste pole.`);
+                        updateGameLogUI();
+                        selectedMove = null; // Reset package selection
+                        renderGameBoard();
+                        return;
+                    }
+                }
+            }
+            // --- End Shadow Donkey handling ---
+
+
+            // Normal move logic
             const isPossible = possibleMoves.some(move => move.x === x && move.y === y);
             if (isPossible) {
                 selectedMove = { x, y };
@@ -758,4 +900,5 @@
     </script>
 </body>
 </html>
+
 
