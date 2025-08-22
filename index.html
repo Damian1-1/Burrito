@@ -281,7 +281,7 @@
                     }
                     break;
                 case 'bazaar':
-                    newLog.push(`  ${player.name} jest na Bazarze. Tutaj mozesz sprzedac pakunki (5 pkt/szt)!`);
+                    newLog.push(`  ${player.name} jest na Bazarze. Tutaj mozesz sprzedac pakunki (5 pts/each)!`);
                     if (player.packages.length > 0) {
                         const soldPackage = player.packages.pop();
                         player.points += 5;
@@ -341,7 +341,7 @@
                 case 'oasis': // New Oasis tile logic
                     newLog.push(`  ${player.name} wszedl na Oaze! Zyskuje +1 ruch w tej turze!`);
                     // This bonus is applied immediately for calculation, then reset.
-                    player.extraMoveNextTurn += 1;
+                    player.extraMoveNextTurn += 1; // This will be consumed by calculatePossibleMoves for the current turn
                     break;
                 default:
                     break;
@@ -373,7 +373,7 @@
             let baseMovement = 2; // Default movement
 
             // Add movement bonus from vineyard, equipment, or Mapa
-            baseMovement += player.extraMoveNextTurn;
+            baseMovement += player.extraMoveNextTurn; // Consumed here for the current turn
             if (hasEquipment(player, 'sakwa')) {
                 baseMovement += 1;
             }
@@ -381,8 +381,9 @@
                 baseMovement += 1;
             }
             
-            // Reset extraMoveNextTurn after considering it for current turn
-            player.extraMoveNextTurn = 0;
+            // Note: player.extraMoveNextTurn is reset in nextTurn() after the move, not here.
+            // This ensures Oasis bonus is applied to *this* turn's movement calculation,
+            // but cleared before the next turn.
 
             // Ensure movement is not less than 1
             const actualMovement = Math.max(1, baseMovement);
@@ -432,9 +433,14 @@
         // AI movement logic
         const aiMove = (player, board, playersList, size) => {
             const { x: currentX, y: currentY } = player.caravan[0];
-            const possibleMoves = calculatePossibleMoves(player, board, size);
+            let currentTurnPossibleMoves = calculatePossibleMoves(player, board, size); // AI calculates its moves
+            
+            // After calculating possible moves, reset extraMoveNextTurn for this player
+            // This ensures Oasis bonus is consumed for this AI player's turn only.
+            player.extraMoveNextTurn = 0;
 
-            if (possibleMoves.length === 0) {
+
+            if (currentTurnPossibleMoves.length === 0) {
                 gameLog.push(`  ${player.name} (AI) has no possible moves.`);
                 updateGameLogUI();
                 return;
@@ -443,7 +449,7 @@
             let bestMove = null;
             let highestPriority = -Infinity;
 
-            for (const move of possibleMoves) {
+            for (const move of currentTurnPossibleMoves) {
                 const { x: targetX, y: targetY } = move;
                 const tile = board[targetX][targetY];
                 let priority = 0;
@@ -528,7 +534,7 @@
                 gameLog.push(`  ${player.name} (AI) moves to (${bestMove.x + 1}, ${bestMove.y + 1}).`);
                 handleTileAction(player, board, playersList);
             } else {
-                const safeMoves = possibleMoves.filter(move => {
+                const safeMoves = currentTurnPossibleMoves.filter(move => {
                     const tile = board[move.x][move.y];
                     const isTrapSafe = tile.type !== 'trap' || player.amuletActiveTurns > 0 || hasAbility(player, 'twardziel');
                     const isBanditSafe = tile.type !== 'bandits' || player.amuletActiveTurns > 0 || hasAbility(player, 'sturdy');
@@ -558,7 +564,8 @@
         let gameLog = [];
         let gameOver = false;
         let winner = null;
-        let selectedMove = null;
+        let selectedMove = null; // For normal player movement selection
+        let selectedPackageForRelocation = null; // For Shadow Donkey ability
         let possibleMoves = [];
 
         // --- UI ELEMENTS ---
@@ -573,14 +580,14 @@
         const legendData = [
             { symbol: '🔵/🔴', description: 'Start Gracza' },
             { symbol: '📦', description: 'Pakunek (punkty)' },
-            { symbol: '✨', description: 'Pakunek Amulet (ochrona)' },
-            { symbol: '🗺️', description: 'Pakunek Mapa (+1 ruch)' },
+            { symbol: '✨', description: 'Pakunek Amulet (ochrona przed pułapkami/bandytami)' }, // Updated description
+            { symbol: '🗺️', description: 'Pakunek Mapa (+1 stały ruch)' },                        // Updated description
             { symbol: '🐴', description: 'Luźny Osiołek (+1 do karawany)' },
             { symbol: '🍎', description: 'Jedzenie (rozmnożenie karawany)' },
             { symbol: '☠️', description: 'Pułapka (tracisz turę)' },
-            { symbol: '🤠', description: 'Bandolero (tracisz osiołka/pakunek)' }, // New legend entry
-            { symbol: '💧', description: 'Studnia (bonus/kara)' },             // New legend entry
-            { symbol: '🌴', description: 'Oaza (+1 ruch w tej turze)' },        // New legend entry
+            { symbol: '🤠', description: 'Bandolero (tracisz osiołka/pakunek)' },
+            { symbol: '💧', description: 'Studnia (bonus/kara)' },
+            { symbol: '🌴', description: 'Oaza (+1 ruch w tej turze)' },
             { symbol: '🍇', description: 'Winnica (+1 ruch w nast. turze)' },
             { symbol: '🏔️', description: 'Górski Skrót (teleportacja)' },
             { symbol: '🌵', description: 'Kaktus (+1 koszt ruchu)' },
@@ -604,13 +611,14 @@
                 Gracz("Czerwony", "🔴", "🟥", BOARD_SIZE - 1, BOARD_SIZE - 1, true)  // AI player
             ];
             players[0].equipment.push('sakwa');
-            // players[1].equipment.push('siodlo'); // AI starts with saddle
+            // players[1].equipment.push('siodlo'); // AI starts with saddle (removed for more dynamic play)
 
             currentPlayerIndex = 0;
             gameLog = ["--- Rozpoczynamy Karawane Burrito! ---"];
             gameOver = false;
             winner = null;
             selectedMove = null;
+            selectedPackageForRelocation = null; // Reset this on game start
             possibleMoves = [];
 
             renderGame();
@@ -633,14 +641,18 @@
                     if (!players[currentPlayerIndex].isAI && possibleMoves.some(m => m.x === rIdx && m.y === cIdx)) {
                         tileDiv.classList.add('bg-green-200', 'cursor-pointer', 'hover:bg-green-300');
                         tileDiv.onclick = () => handleTileClick(rIdx, cIdx);
-                    } else if (players[currentPlayerIndex].isAI) {
+                    } else { // For AI or if no possible moves, remove interactive classes
                         tileDiv.classList.remove('cursor-pointer', 'hover:bg-green-300');
                         tileDiv.onclick = null;
                     }
 
-                    // Highlight selected move
+                    // Highlight selected move (for normal movement)
                     if (selectedMove && selectedMove.x === rIdx && selectedMove.y === cIdx) {
                         tileDiv.classList.add('bg-yellow-300');
+                    }
+                    // Highlight selected package for relocation (Shadow Donkey)
+                    else if (selectedPackageForRelocation && selectedPackageForRelocation.x === rIdx && selectedPackageForRelocation.y === cIdx) {
+                        tileDiv.classList.add('bg-purple-300'); // Different highlight for selected package
                     }
 
                     // Get content for the tile (player or tile symbol)
@@ -692,6 +704,7 @@
                     ${player.losesTurn > 0 ? `<p class="text-red-600 font-semibold">Tracisz ${player.losesTurn} turę/tury!</p>` : ''}
                     ${player.amuletActiveTurns > 0 ? `<p class="text-purple-600 font-semibold">Amulet aktywny: ${player.amuletActiveTurns} tura/tury!</p>` : ''}
                     ${player.mapaBonusActive ? `<p class="text-yellow-600 font-semibold">Bonus z Mapy: +1 ruch!</p>` : ''}
+                    ${player.shadowCooldown > 0 ? `<p class="text-gray-600 font-semibold">Czarny Osiołek: ${player.shadowCooldown} tura/tury do odnowienia.</p>` : ''}
                 `;
                 playersInfoElement.appendChild(playerDiv);
             });
@@ -725,6 +738,13 @@
         // Main rendering function
         function renderGame() {
             renderPlayersInfo();
+            // Possible moves are calculated *before* rendering the board
+            // This ensures they are up-to-date for the current player
+            if (!players[currentPlayerIndex].isAI) {
+                possibleMoves = calculatePossibleMoves(players[currentPlayerIndex], board, BOARD_SIZE);
+            } else {
+                possibleMoves = []; // Clear for AI
+            }
             renderGameBoard(); // Renders the board based on current state
             updateNextTurnButtonState();
         }
@@ -741,8 +761,9 @@
                     nextTurnButton.textContent = "Tura AI (poczekaj...)";
                     nextTurnButton.disabled = true;
                 } else {
-                    nextTurnButton.textContent = selectedMove ? "Wykonaj Ruch" : "Wybierz Ruch";
-                    nextTurnButton.disabled = !selectedMove;
+                    // Button is enabled if a normal move is selected OR if Shadow Donkey action is pending
+                    nextTurnButton.textContent = selectedMove ? "Wykonaj Ruch" : (selectedPackageForRelocation ? "Wybierz puste pole" : "Wybierz Ruch");
+                    nextTurnButton.disabled = (!selectedMove && !selectedPackageForRelocation);
                 }
             }
         }
@@ -765,6 +786,16 @@
                     gameLog.push(`  ${currentGracz.name}: Amulet przestal dzialac.`);
                 }
             }
+            // Decrement Shadow Donkey cooldown
+            if (currentGracz.shadowCooldown > 0) {
+                currentGracz.shadowCooldown -= 1;
+            }
+
+            // Reset extraMoveNextTurn before current player's action
+            // This ensures any Oasis bonus from previous turn is cleared before calculating *this* turn's moves.
+            // The Oasis bonus for *this* turn is added in handleTileAction and consumed by calculatePossibleMoves
+            // when it's called to determine actual movement.
+            currentGracz.extraMoveNextTurn = 0;
 
 
             // Check if player loses turn
@@ -782,20 +813,33 @@
 
             // Human player logic
             if (!currentGracz.isAI) {
-                if (!selectedMove) {
-                    gameLog.push(`  ${currentGracz.name}: Wybierz pole, na ktore chcesz sie ruszyc.`);
+                if (!selectedMove && !selectedPackageForRelocation) { // If neither a move nor a package relocation is selected
+                    gameLog.push(`  ${currentGracz.name}: Wybierz pole, na ktore chcesz sie ruszyc (lub pakunek jesli masz Czarnego Osiolka).`);
                     updateGameLogUI();
                     return;
                 }
-                // Update entire caravan's position
-                const oldCaravan = JSON.parse(JSON.stringify(currentGracz.caravan));
-                currentGracz.caravan[0] = { x: selectedMove.x, y: selectedMove.y, osiolek: oldCaravan[0].osiolek };
-                for (let i = 1; i < currentGracz.caravan.length; i++) {
-                    currentGracz.caravan[i] = { ...oldCaravan[i - 1], osiolek: oldCaravan[i].osiolek };
+                // If a package was selected for relocation, but no empty tile clicked, it means the button was clicked
+                // This shouldn't happen if the UI properly forces a tile click. But as a safeguard:
+                if (selectedPackageForRelocation) {
+                    gameLog.push(`  ${currentGracz.name}: Najpierw wybierz pakunek, a potem puste sąsiadujące pole.`);
+                    updateGameLogUI();
+                    selectedPackageForRelocation = null; // Clear state
+                    renderGame();
+                    return;
                 }
-                gameLog.push(`  ${currentGracz.name} moved to (${selectedMove.x + 1}, ${selectedMove.y + 1}).`);
-                handleTileAction(currentGracz, newBoard, updatedPlayers);
-                selectedMove = null; // Reset selected move
+
+                // Normal move execution
+                if (selectedMove) {
+                    // Update entire caravan's position
+                    const oldCaravan = JSON.parse(JSON.stringify(currentGracz.caravan));
+                    currentGracz.caravan[0] = { x: selectedMove.x, y: selectedMove.y, osiolek: oldCaravan[0].osiolek };
+                    for (let i = 1; i < currentGracz.caravan.length; i++) {
+                        currentGracz.caravan[i] = { ...oldCaravan[i - 1], osiolek: oldCaravan[i].osiolek };
+                    }
+                    gameLog.push(`  ${currentGracz.name} moved to (${selectedMove.x + 1}, ${selectedMove.y + 1}).`);
+                    handleTileAction(currentGracz, newBoard, updatedPlayers);
+                    selectedMove = null; // Reset selected move
+                }
             } else {
                 // AI logic
                 aiMove(currentGracz, newBoard, updatedPlayers, BOARD_SIZE);
@@ -835,22 +879,14 @@
         function handleTileClick(x, y) {
             if (gameOver || players[currentPlayerIndex].isAI) return;
 
-            // --- Shadow Donkey (Czarny Osiolek) ability handling ---
             const currentGracz = players[currentPlayerIndex];
-            // If the player has the 'shadow' ability and it's not on cooldown
+
+            // --- Shadow Donkey (Czarny Osiolek) ability handling ---
+            // If player has the ability and it's not on cooldown
             if (hasAbility(currentGracz, 'shadow') && currentGracz.shadowCooldown === 0) {
-                // If a package is clicked, mark it as target for relocation
-                if (board[x][y].type === 'package') {
-                    selectedMove = { x, y, isPackageRelocation: true };
-                    gameLog.push(`  ${currentGracz.name}: Wybrano pakunek na (${x + 1}, ${y + 1}). Kliknij sąsiednie puste pole, by go tam przesunąć.`);
-                    updateGameLogUI();
-                    renderGameBoard(); // Re-render to show selected package
-                    return; // Don't process as a normal move yet
-                }
-                // If a blank tile is clicked after selecting a package
-                else if (selectedMove && selectedMove.isPackageRelocation) {
-                    const pakunekX = selectedMove.x;
-                    const pakunekY = selectedMove.y;
+                if (selectedPackageForRelocation !== null) { // Player is in the process of relocating a package (second click)
+                    const pakunekX = selectedPackageForRelocation.x;
+                    const pakunekY = selectedPackageForRelocation.y;
 
                     // Check if new tile is adjacent and empty
                     if (calculateManhattanDistance(pakunekX, pakunekY, x, y) === 1 && board[x][y].type === 'empty') {
@@ -859,31 +895,42 @@
                         board[pakunekX][pakunekY] = Pole('empty', '.');
                         gameLog.push(`  ${currentGracz.name} uzyl Czarnego Osiolka! Przesunal pakunek z (${pakunekX + 1},${pakunekY + 1}) na (${x + 1},${y + 1}).`);
                         currentGracz.shadowCooldown = 3; // Set cooldown
-                        selectedMove = null; // Reset selection
+                        selectedPackageForRelocation = null; // Reset package selection
+                        selectedMove = null; // Clear normal move selection as well
                         updateGameLogUI();
                         renderGame(); // Re-render board and UI
-                        return; // Action consumed, wait for next turn click
+                        return; // Action consumed, turn may continue or wait for next click on 'Wykonaj Ruch'
                     } else {
                         gameLog.push(`  Nieprawidlowe przesuniecie pakunku: wybierz sąsiadujące puste pole.`);
                         updateGameLogUI();
-                        selectedMove = null; // Reset package selection
-                        renderGameBoard();
+                        selectedPackageForRelocation = null; // Reset invalid selection
+                        renderGame(); // Re-render to clear highlight
                         return;
                     }
+                } else if (board[x][y].type === 'package') { // Player clicks a package to start relocation (first click)
+                    selectedPackageForRelocation = { x, y };
+                    selectedMove = null; // Clear any normal move selection
+                    gameLog.push(`  ${currentGracz.name}: Wybrano pakunek na (${x + 1}, ${y + 1}). Kliknij sąsiednie puste pole, by go tam przesunąć.`);
+                    updateGameLogUI();
+                    renderGame(); // Re-render to show selected package
+                    return;
                 }
             }
             // --- End Shadow Donkey handling ---
 
 
-            // Normal move logic
-            const isPossible = possibleMoves.some(move => move.x === x && move.y === y);
-            if (isPossible) {
-                selectedMove = { x, y };
-                renderGameBoard(); // Re-render to show selected move
-                updateNextTurnButtonState();
-            } else {
-                gameLog.push(`  ${players[currentPlayerIndex].name}: Nie mozesz ruszyc sie na pole (${x + 1}, ${y + 1}).`);
-                updateGameLogUI();
+            // Normal move logic - only if no package relocation is pending
+            if (selectedPackageForRelocation === null) {
+                const isPossible = possibleMoves.some(move => move.x === x && move.y === y);
+                if (isPossible) {
+                    selectedMove = { x, y };
+                    renderGame(); // Re-render to show selected move
+                } else {
+                    gameLog.push(`  ${players[currentPlayerIndex].name}: Nie mozesz ruszyc sie na pole (${x + 1}, ${y + 1}).`);
+                    updateGameLogUI();
+                    selectedMove = null; // Clear any invalid selection
+                    renderGame();
+                }
             }
         }
 
@@ -900,5 +947,3 @@
     </script>
 </body>
 </html>
-
-
